@@ -1,0 +1,52 @@
+Atue como um Arquiteto de Dados e Desenvolvedor Mobile Sênior. Nosso objetivo é criar um aplicativo Android (React Native com Expo) para gerenciamento de personagens de D&D 5e.
+
+Além de ser uma ferramenta funcional com uma excelente UX para o momento do combate, este projeto servirá como um portfólio prático de Arquitetura de Dados. Portanto, a modelagem, a validação estrutural e o fluxo da informação são as prioridades absolutas.
+
+Conceito de Arquitetura de Dados (Motor Principal):
+O app deve funcionar sob uma arquitetura leve focada em documentos (NoSQL concept), utilizando AsyncStorage para persistência local.
+
+Requisitos Técnicos do Portfólio (Data Layer):
+
+1. Data Modeling & Schema Validation
+
+Defina um esquema JSON robusto e escalável para representar o "Character Object". Ele deve suportar aninhamento lógico (ex: separar atributos base de modificadores dinâmicos).
+
+Implemente uma validação de esquema (usando bibliotecas como Zod ou Yup) na entrada dos dados. O app não pode aceitar um JSON malformado ou com tipos de dados incorretos na importação.
+
+2. Estrutura de Logs (Preparação para Data Engineering)
+
+Crie uma estrutura de "Combat Log" independente. Cada vez que o HP for alterado ou um "Smite" for usado, o app deve gerar um registro de evento com timestamp, action_type, value_change e current_state.
+
+Isso servirá para demonstrar captura de eventos (Event Sourcing) que futuramente poderiam alimentar um pipeline de dados analítico.
+
+3. Módulo de Integração (Mini-ETL)
+
+Desenvolva funções claras de Exportação e Importação.
+
+O usuário deve poder exportar a "Ficha Completa" como JSON estruturado.
+
+O usuário deve poder exportar o "Combat Log" como CSV (pronto para ser consumido por ferramentas externas como PySpark, Delta Lake ou scripts Python locais).
+
+Estrutura de Interface (Front-end):
+
+1. Tela Inicial (Manager)
+
+Lista de personagens salvos.
+
+Funções de Data I/O: Import JSON, Export JSON, Export Logs (CSV).
+
+2. Dashboard Tático (A tela de jogo em Dark Mode)
+
+Vitals Widget: Leitura do HP Atual/Máximo e botões rápidos (+1, -1, +5, -5). Cada clique aqui alimenta o Combat Log.
+
+Combat Widget: CA atual. Toggles dinâmicos (ex: "Escudo da Fé").
+
+Resource Tracker: Rastreador dinâmico de espaços de magia/habilidades.
+
+Ação Imediata:
+
+Desenhe o modelo de dados (JSON Schema) que sustentará a aplicação, explicando as decisões de arquitetura escolhidas para manter a escalabilidade.
+
+Estruture a árvore de diretórios do projeto Expo, isolando claramente a camada de dados (Data Layer/Services) da camada de apresentação (UI/Components).
+
+Escreva o código do serviço responsável por registrar os eventos de combate e gerar o arquivo CSV.
