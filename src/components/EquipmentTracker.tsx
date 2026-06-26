@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView } from 'react-native';
+import { Alert } from '../utils/alert';
 import { EquipmentItem } from '../types/character';
 import { Ionicons } from '@expo/vector-icons';
 import { MAGIC_ITEMS_LIST, MagicItemTemplate } from '../utils/dndRules';

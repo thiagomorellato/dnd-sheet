@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Alert,
   Switch,
 } from 'react-native';
+import { Alert } from '../utils/alert';
 import { Character, BaseStats, HP, Resources, EquipmentItem } from '../types/character';
 import { StorageService } from '../services/storage';
 import {

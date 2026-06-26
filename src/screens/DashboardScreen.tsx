@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Alert,
   ImageBackground,
   Modal,
   TextInput,
@@ -14,6 +13,7 @@ import {
   Platform,
   UIManager,
 } from 'react-native';
+import { Alert } from '../utils/alert';
 import { Character, HP, Resources, CombatLogEntry, ActionType, CombatConfig, EquipmentItem, BaseStats, Coins } from '../types/character';
 import { StorageService } from '../services/storage';
 import { LoggerService } from '../services/logger';

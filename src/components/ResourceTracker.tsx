@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { Alert } from '../utils/alert';
 import { Resources, SpellSlot, CustomResource, CombatConfig, HP, BaseStats } from '../types/character';
 import { SPELLS_DATABASE, Spell } from '../utils/dndSpells';
 import { Ionicons } from '@expo/vector-icons';

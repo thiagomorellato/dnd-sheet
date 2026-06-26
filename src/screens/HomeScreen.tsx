@@ -7,9 +7,9 @@ import {
   FlatList,
   Modal,
   TextInput,
-  Alert,
   ScrollView,
 } from 'react-native';
+import { Alert } from '../utils/alert';
 import { Character } from '../types/character';
 import { StorageService } from '../services/storage';
 import { LoggerService } from '../services/logger';
