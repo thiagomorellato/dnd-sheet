@@ -494,6 +494,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ characterId, o
 
   if (!character) return null;
 
+  const parts = character.characterClass.split(' (');
+  const className = parts[0];
+  const subclass = parts[1] ? parts[1].replace(')', '') : '';
+
   return (
     <ImageBackground
       source={require('../../assets/paladin_bg.jpg')}
@@ -503,13 +507,18 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ characterId, o
       <View style={styles.overlay}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-          <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
+        <TouchableOpacity style={styles.backBtnCompact} onPress={onBack} activeOpacity={0.7}>
+          <Ionicons name="chevron-back" size={24} color="#F59E0B" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.charName} numberOfLines={1}>{character.name}</Text>
+          <View style={styles.headerTopRow}>
+            <Text style={styles.charName} numberOfLines={1}>{character.name}</Text>
+            <View style={styles.levelBadge}>
+              <Text style={styles.levelBadgeText}>NÍVEL {character.level}</Text>
+            </View>
+          </View>
           <Text style={styles.charSubtitle}>
-            Nível {character.level} {character.characterClass}{character.background ? ` | ${character.background.split(' (')[0]}` : ''}
+            {className}{subclass ? ` | ${subclass}` : ''}{character.background ? ` | ${character.background.split(' (')[0]}` : ''}
           </Text>
         </View>
       </View>
@@ -707,30 +716,47 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
+    borderBottomColor: 'rgba(51, 65, 85, 0.4)',
   },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#1E293B',
+  backBtnCompact: {
+    marginRight: 6,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 4,
   },
   headerTitleContainer: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 6,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   charName: {
     color: '#F8FAFC',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '900',
+    marginRight: 8,
+  },
+  levelBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    borderColor: '#F59E0B',
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+  },
+  levelBadgeText: {
+    color: '#F59E0B',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   charSubtitle: {
-    color: '#64748B',
-    fontSize: 12,
+    color: '#94A3B8',
+    fontSize: 11,
     fontWeight: '700',
     marginTop: 2,
   },

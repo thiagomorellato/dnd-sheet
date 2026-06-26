@@ -57,7 +57,16 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
   onUpdateHitDice,
 }) => {
   const [multiplier, setMultiplier] = useState<1 | 5 | 10 | 20>(1);
-  const [statsExpanded, setStatsExpanded] = useState(false);
+  const [activeStat, setActiveStat] = useState<keyof BaseStats | null>(null);
+
+  const handleToggleStat = (stat: keyof BaseStats) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    if (activeStat === stat) {
+      setActiveStat(null);
+    } else {
+      setActiveStat(stat);
+    }
+  };
   const [coinsModalVisible, setCoinsModalVisible] = useState(false);
   const [hpModalVisible, setHpModalVisible] = useState(false);
 
@@ -170,10 +179,6 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
     );
   };
 
-  const toggleExpand = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setStatsExpanded(!statsExpanded);
-  };
 
   const getHpColor = () => {
     if (hpPercentage > 50) return '#10B981'; // Green
@@ -187,198 +192,219 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.mainRow}>
-            
-            <View style={styles.leftColumn}>
-              <TouchableOpacity
-                style={styles.attributesHeaderVertical}
-                onPress={toggleExpand}
-                activeOpacity={0.7}
-              >
-                <Ionicons name="git-branch" size={12} color="#F59E0B" style={{ marginRight: 4 }} />
-                <Text style={styles.attributesTitleVertical}>ATRIBUTOS</Text>
-                <Ionicons name={statsExpanded ? 'chevron-up' : 'chevron-down'} size={12} color="#94A3B8" style={{ marginLeft: 2 }} />
-              </TouchableOpacity>
-              
-              <View style={styles.verticalStatsContainer}>
-                {(Object.keys(stats) as Array<keyof BaseStats>).map(stat => {
-                  const skills = SKILL_MAPPING[stat];
-                  const modVal = Math.floor((stats[stat] - 10) / 2);
-                  const modStr = modVal >= 0 ? `+${modVal}` : `${modVal}`;
+      {/* Horizontal Attributes Grid */}
+      <View style={styles.horizontalAttributesRow}>
+        {(Object.keys(stats) as Array<keyof BaseStats>).map(stat => {
+          const modVal = Math.floor((stats[stat] - 10) / 2);
+          const modStr = modVal >= 0 ? `+${modVal}` : `${modVal}`;
+          const isActive = activeStat === stat;
+
+          return (
+            <TouchableOpacity
+              key={stat}
+              style={[
+                styles.attributeCardHorizontal,
+                isActive && styles.attributeCardHorizontalActive
+              ]}
+              onPress={() => handleToggleStat(stat)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.attributeLabelHorizontal}>{stat.toUpperCase()}</Text>
+              <Text style={styles.attributeModHorizontal}>{modStr}</Text>
+              <Text style={styles.attributeScoreHorizontal}>{stats[stat]}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* Interactive Skills Panel (Collapsible drawer below attributes) */}
+      {activeStat && (
+        <View style={styles.skillsDrawer}>
+          <View style={styles.skillsDrawerHeader}>
+            <Text style={styles.skillsDrawerTitle}>
+              PERÍCIAS ({activeStat.toUpperCase()})
+            </Text>
+            <TouchableOpacity onPress={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setActiveStat(null);
+            }}>
+              <Ionicons name="close-circle" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.skillsDrawerContent}>
+            {SKILL_MAPPING[activeStat].length > 0 ? (
+              <View style={styles.skillsDrawerGrid}>
+                {SKILL_MAPPING[activeStat].map(skill => {
+                  const fullName = SKILL_FULL_NAMES[skill] || skill;
+                  const isProficient = proficiencies.includes(skill) || proficiencies.includes(fullName);
+                  const modVal = Math.floor((stats[activeStat] - 10) / 2);
+                  const finalBonus = modVal + (isProficient ? proficiencyBonus : 0);
+                  const finalBonusStr = finalBonus >= 0 ? `+${finalBonus}` : `${finalBonus}`;
 
                   return (
-                    <View
-                      key={stat}
-                      style={[
-                        styles.statCardVertical,
-                        statsExpanded && skills.length > 0 && styles.statCardVerticalExpanded
-                      ]}
-                    >
-                      <View style={styles.statCardHeader}>
-                        <Text style={styles.statLabelVertical}>{stat.toUpperCase()}</Text>
-                        <Text style={styles.modTextVertical}>{modStr}</Text>
-                        <Text style={styles.scoreTextVertical}>{stats[stat]}</Text>
-                      </View>
-
-                      {statsExpanded && skills.length > 0 && (
-                        <View style={styles.skillsSectionVertical}>
-                          {skills.map(skill => {
-                            const fullName = SKILL_FULL_NAMES[skill] || skill;
-                            const isProficient = proficiencies.includes(skill) || proficiencies.includes(fullName);
-                            const finalBonus = modVal + (isProficient ? proficiencyBonus : 0);
-                            const finalBonusStr = finalBonus >= 0 ? `+${finalBonus}` : `${finalBonus}`;
-
-                            return (
-                              <View key={skill} style={styles.skillItemVertical}>
-                                <Ionicons
-                                  name="ellipse"
-                                  size={4}
-                                  color={isProficient ? '#F59E0B' : '#475569'}
-                                  style={styles.skillDotVertical}
-                                />
-                                <Text style={[styles.skillBonusVertical, isProficient && styles.skillBonusProficientVertical]}>
-                                  {finalBonusStr}
-                                </Text>
-                                <Text style={[styles.skillNameVertical, isProficient && styles.skillNameProficientVertical]} numberOfLines={1}>
-                                  {skill}
-                                </Text>
-                              </View>
-                            );
-                          })}
-                        </View>
-                      )}
+                    <View key={skill} style={styles.drawerSkillItem}>
+                      <Ionicons
+                        name="ellipse"
+                        size={5}
+                        color={isProficient ? '#F59E0B' : '#475569'}
+                        style={{ marginRight: 4 }}
+                      />
+                      <Text style={[styles.drawerSkillBonus, isProficient && styles.drawerSkillBonusProficient]}>
+                        {finalBonusStr}
+                      </Text>
+                      <Text style={[styles.drawerSkillName, isProficient && styles.drawerSkillNameProficient]}>
+                        {fullName}
+                      </Text>
                     </View>
                   );
                 })}
               </View>
+            ) : (
+              <Text style={styles.noSkillsText}>Nenhuma perícia vinculada a {activeStat.toUpperCase()}.</Text>
+            )}
+          </View>
+        </View>
+      )}
+
+      {/* Central View (Model placeholder and Combat info side-by-side) */}
+      <View style={styles.middleRow}>
+        <View style={styles.middleColumn}>
+          <View style={styles.modelPlaceholder}>
+            <Ionicons name="body-outline" size={24} color="rgba(148, 163, 184, 0.25)" />
+            <Text style={styles.modelPlaceholderText}>MODELO DE BONECO</Text>
+            <Text style={styles.modelPlaceholderSub}>Espaço reservado para visualização do personagem</Text>
+          </View>
+        </View>
+
+        <View style={styles.rightColumn}>
+          <View style={styles.badgesRow}>
+            <View style={styles.acBadgeCompact}>
+              <View style={styles.acIconWrapperCompact}>
+                <Ionicons name="shield" size={32} color={combat.shieldOfFaithActive ? '#60A5FA' : '#94A3B8'} />
+                <Text style={styles.acTextCompact}>{currentAC}</Text>
+              </View>
+              <Text style={styles.badgeLabelCompact}>C.A.</Text>
             </View>
 
-            <View style={styles.middleColumn}>
-              <View style={styles.modelPlaceholder}>
-                <Ionicons name="body-outline" size={24} color="rgba(148, 163, 184, 0.25)" />
-                <Text style={styles.modelPlaceholderText}>MODELO DE BONECO</Text>
-                <Text style={styles.modelPlaceholderSub}>Espaço reservado para visualização do personagem</Text>
+            <View style={styles.profBadgeCompact}>
+              <View style={styles.profIconWrapperCompact}>
+                <Ionicons name="star" size={32} color="#94A3B8" />
+                <Text style={styles.profTextCompact}>+{proficiencyBonus}</Text>
               </View>
-            </View>
-
-            <View style={styles.rightColumn}>
-              <View style={styles.badgesRow}>
-                <View style={styles.acBadgeCompact}>
-                  <View style={styles.acIconWrapperCompact}>
-                    <Ionicons name="shield" size={32} color={combat.shieldOfFaithActive ? '#60A5FA' : '#94A3B8'} />
-                    <Text style={styles.acTextCompact}>{currentAC}</Text>
-                  </View>
-                  <Text style={styles.badgeLabelCompact}>C.A.</Text>
-                </View>
-
-                <View style={styles.profBadgeCompact}>
-                  <View style={styles.profIconWrapperCompact}>
-                    <Ionicons name="star" size={32} color="#94A3B8" />
-                    <Text style={styles.profTextCompact}>+{proficiencyBonus}</Text>
-                  </View>
-                  <Text style={styles.badgeLabelCompact}>PROF</Text>
-                </View>
-              </View>
-
-              {combat.shieldOfFaithActive && (
-                <View style={styles.buffBadgeCompact}>
-                  <Ionicons name="sparkles" size={10} color="#60A5FA" style={{ marginRight: 4 }} />
-                  <Text style={styles.buffTextCompact}>SHIELD OF FAITH ON SELF</Text>
-                </View>
-              )}
-
-              <Text style={styles.charTitleCompact} numberOfLines={1}>{characterName.toUpperCase()}</Text>
-
-              <TouchableOpacity 
-                style={styles.coinsContainerCompact} 
-                onPress={() => {
-                  setEditCP(String(coins.cp));
-                  setEditSP(String(coins.sp));
-                  setEditEP(String(coins.ep));
-                  setEditGP(String(coins.gp));
-                  setEditPP(String(coins.pp));
-                  setCoinsModalVisible(true);
-                }}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="wallet" size={11} color="#F59E0B" style={{ marginRight: 4 }} />
-                <View style={styles.coinBadgeCompact}>
-                  <View style={[styles.coinDot, { backgroundColor: '#F59E0B' }]} />
-                  <Text style={styles.coinTextCompact}>{coins.gp} gp</Text>
-                </View>
-                <View style={styles.coinBadgeCompact}>
-                  <View style={[styles.coinDot, { backgroundColor: '#E2E8F0' }]} />
-                  <Text style={styles.coinTextCompact}>{coins.pp} pp</Text>
-                </View>
-                <View style={styles.coinBadgeCompact}>
-                  <View style={[styles.coinDot, { backgroundColor: '#94A3B8' }]} />
-                  <Text style={styles.coinTextCompact}>{coins.sp} sp</Text>
-                </View>
-                <View style={styles.coinBadgeCompact}>
-                  <View style={[styles.coinDot, { backgroundColor: '#B45309' }]} />
-                  <Text style={styles.coinTextCompact}>{coins.cp} cp</Text>
-                </View>
-              </TouchableOpacity>
+              <Text style={styles.badgeLabelCompact}>PROF</Text>
             </View>
           </View>
 
-          <View style={styles.bottomArea}>
-            <View style={styles.progressBarBg}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${hpPercentage}%`, backgroundColor: getHpColor() },
-                ]}
-              />
+          {combat.shieldOfFaithActive && (
+            <View style={styles.buffBadgeCompact}>
+              <Ionicons name="sparkles" size={10} color="#60A5FA" style={{ marginRight: 4 }} />
+              <Text style={styles.buffTextCompact}>SHIELD OF FAITH ON SELF</Text>
             </View>
+          )}
 
-            <View style={styles.hpControlsRow}>
-              <TouchableOpacity style={styles.hpValuesWrapper} onPress={handleOpenHPModal} activeOpacity={0.7}>
-                <Text style={styles.hpCurrentLabel}>
-                  {(hp.temp ?? 0) > 0 ? (hp.current + (hp.temp ?? 0)) : hp.current}
-                </Text>
-                <Text style={styles.hpMaxLabel}>
-                  /{hp.max}{(hp.temp ?? 0) > 0 ? ` (+${hp.temp})` : ''} HP
-                </Text>
-                <Ionicons name="create-outline" size={10} color="#64748B" style={{ marginLeft: 3, alignSelf: 'center' }} />
-              </TouchableOpacity>
-
-              <View style={styles.rightSideControls}>
-                {/* Hit Dice (Coraçãozinho 5/5 (d10)) */}
-                <TouchableOpacity
-                  style={styles.hitDiceContainerCompact}
-                  onPress={() => {
-                    if (hdCurrent > 0) {
-                      onUpdateHitDice(hdCurrent - 1);
-                    } else {
-                      onUpdateHitDice(hdMax);
-                    }
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="heart" size={10} color="#EF4444" style={{ marginRight: 3 }} />
-                  <Text style={styles.hitDiceTextCompact}>
-                    {hdCurrent}/{hdMax} ({hdType})
-                  </Text>
-                </TouchableOpacity>
-
-                {/* HP Adjustments (Order: - + 1x) */}
-                <View style={styles.quickControls}>
-                  <TouchableOpacity style={[styles.controlBtnCompact, styles.btnDamageCompact]} onPress={() => handleAdjust(false)}>
-                    <Ionicons name="remove" size={14} color="#F8FAFC" />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity style={[styles.controlBtnCompact, styles.btnHealCompact]} onPress={() => handleAdjust(true)}>
-                    <Ionicons name="add" size={14} color="#F8FAFC" />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity style={styles.multiplierBtnCompact} onPress={cycleMultiplier}>
-                    <Text style={styles.multiplierValCompact}>{multiplier}x</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+          <TouchableOpacity 
+            style={styles.coinsContainerCompact} 
+            onPress={() => {
+              setEditCP(String(coins.cp));
+              setEditSP(String(coins.sp));
+              setEditEP(String(coins.ep));
+              setEditGP(String(coins.gp));
+              setEditPP(String(coins.pp));
+              setCoinsModalVisible(true);
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="wallet" size={11} color="#F59E0B" style={{ marginRight: 4 }} />
+            <View style={styles.coinBadgeCompact}>
+              <View style={[styles.coinDot, { backgroundColor: '#F59E0B' }]} />
+              <Text style={styles.coinTextCompact}>{coins.gp} gp</Text>
             </View>
+            <View style={styles.coinBadgeCompact}>
+              <View style={[styles.coinDot, { backgroundColor: '#E2E8F0' }]} />
+              <Text style={styles.coinTextCompact}>{coins.pp} pp</Text>
+            </View>
+            <View style={styles.coinBadgeCompact}>
+              <View style={[styles.coinDot, { backgroundColor: '#94A3B8' }]} />
+              <Text style={styles.coinTextCompact}>{coins.sp} sp</Text>
+            </View>
+            <View style={styles.coinBadgeCompact}>
+              <View style={[styles.coinDot, { backgroundColor: '#B45309' }]} />
+              <Text style={styles.coinTextCompact}>{coins.cp} cp</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Bottom Area (HP Progress Bar & Combat Controls at the bottom) */}
+      <View style={styles.bottomArea}>
+        <View style={styles.progressBarBg}>
+          <View
+            style={[
+              styles.progressBarFill,
+              { width: `${hpPercentage}%`, backgroundColor: getHpColor() },
+            ]}
+          />
+        </View>
+
+        <View style={styles.hpControlsRow}>
+          {/* Left: HP values editing trigger */}
+          <TouchableOpacity style={styles.hpValuesWrapper} onPress={handleOpenHPModal} activeOpacity={0.7}>
+            <Text style={styles.hpCurrentLabel}>
+              {(hp.temp ?? 0) > 0 ? (hp.current + (hp.temp ?? 0)) : hp.current}
+            </Text>
+            <Text style={styles.hpMaxLabel}>
+              /{hp.max}{(hp.temp ?? 0) > 0 ? ` (+${hp.temp})` : ''} HP
+            </Text>
+            <Ionicons name="create-outline" size={10} color="#64748B" style={{ marginLeft: 3, alignSelf: 'center' }} />
+          </TouchableOpacity>
+
+          {/* Middle: HP Adjustments (- / + / Multiplier) */}
+          <View style={styles.quickControls}>
+            <TouchableOpacity style={[styles.controlBtnCompact, styles.btnDamageCompact]} onPress={() => handleAdjust(false)}>
+              <Ionicons name="remove" size={14} color="#F8FAFC" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.controlBtnCompact, styles.btnHealCompact]} onPress={() => handleAdjust(true)}>
+              <Ionicons name="add" size={14} color="#F8FAFC" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.multiplierBtnCompact} onPress={cycleMultiplier}>
+              <Text style={styles.multiplierValCompact}>{multiplier}x</Text>
+            </TouchableOpacity>
           </View>
+
+          {/* Right: Hit Dice Section (visual icons above numeric text) */}
+          <View style={styles.hitDiceSection}>
+            <TouchableOpacity
+              style={styles.hitDiceInteractiveContainer}
+              onPress={() => {
+                if (hdCurrent > 0) {
+                  onUpdateHitDice(hdCurrent - 1);
+                } else {
+                  onUpdateHitDice(hdMax);
+                }
+              }}
+              activeOpacity={0.7}
+            >
+              {/* Row of cubes above text */}
+              <View style={styles.hitDiceCubesRow}>
+                {Array.from({ length: hdMax }).map((_, idx) => (
+                  <Ionicons
+                    key={idx}
+                    name={idx < hdCurrent ? "cube" : "cube-outline"}
+                    size={10}
+                    color={idx < hdCurrent ? "#EF4444" : "#475569"}
+                    style={{ marginRight: 2 }}
+                  />
+                ))}
+              </View>
+              <Text style={styles.hitDiceTextCompact}>
+                {hdCurrent}/{hdMax} ({hdType})
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
 
       <Modal
         animationType="slide"
@@ -534,37 +560,122 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
-  hitDiceContainerCompact: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-    backgroundColor: 'rgba(15, 23, 42, 0.65)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    borderWidth: 0.5,
-    borderColor: '#334155',
-  },
-  hitDiceTextCompact: {
-    color: '#E2E8F0',
-    fontSize: 9,
-    fontWeight: '700',
-  },
   overlay: {
     padding: 12,
     backgroundColor: 'rgba(15, 23, 42, 0.65)',
   },
-  mainRow: {
+  horizontalAttributesRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    width: '100%',
+    marginBottom: 8,
+  },
+  attributeCardHorizontal: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(51, 65, 85, 0.4)',
+    paddingVertical: 4,
+    marginHorizontal: 1.5,
+    alignItems: 'center',
+  },
+  attributeCardHorizontalActive: {
+    borderColor: '#F59E0B',
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+  },
+  attributeLabelHorizontal: {
+    color: '#64748B',
+    fontSize: 7.5,
+    fontWeight: '800',
+  },
+  attributeModHorizontal: {
+    color: '#F8FAFC',
+    fontSize: 13,
+    fontWeight: '900',
+    marginVertical: 0,
+  },
+  attributeScoreHorizontal: {
+    color: '#475569',
+    fontSize: 7.5,
+    fontWeight: '700',
+    marginTop: -2,
+  },
+  skillsDrawer: {
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(51, 65, 85, 0.5)',
+    padding: 10,
+    marginBottom: 10,
     width: '100%',
   },
-  leftColumn: {
-    width: '24%',
+  skillsDrawerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(148, 163, 184, 0.2)',
+    paddingBottom: 4,
+    marginBottom: 8,
+  },
+  skillsDrawerTitle: {
+    color: '#F59E0B',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  skillsDrawerContent: {
+    width: '100%',
+  },
+  skillsDrawerGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  drawerSkillItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '48%',
+    marginBottom: 5,
+  },
+  drawerSkillBonus: {
+    color: '#64748B',
+    fontSize: 9,
+    fontWeight: '800',
+    marginRight: 4,
+    minWidth: 14,
+  },
+  drawerSkillBonusProficient: {
+    color: '#F59E0B',
+  },
+  drawerSkillName: {
+    color: '#94A3B8',
+    fontSize: 9,
+    fontWeight: '600',
+    flex: 1,
+  },
+  drawerSkillNameProficient: {
+    color: '#E2E8F0',
+    fontWeight: '800',
+  },
+  noSkillsText: {
+    color: '#475569',
+    fontSize: 8,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingVertical: 4,
+  },
+  middleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+    width: '100%',
+    marginTop: 2,
+    marginBottom: 8,
   },
   middleColumn: {
-    width: '46%',
+    width: '58%',
   },
   modelPlaceholder: {
     flex: 1,
@@ -576,7 +687,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
-    minHeight: 180,
+    minHeight: 110,
   },
   modelPlaceholderText: {
     color: '#64748B',
@@ -593,99 +704,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   rightColumn: {
-    width: '26%',
+    width: '38%',
     flexDirection: 'column',
-  },
-  attributesHeaderVertical: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 2,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(51, 65, 85, 0.4)',
-    marginBottom: 4,
-  },
-  attributesTitleVertical: {
-    color: '#94A3B8',
-    fontSize: 8,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  verticalStatsContainer: {
-    flexDirection: 'column',
-  },
-  statCardVertical: {
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(51, 65, 85, 0.4)',
-    paddingVertical: 1.5,
-    paddingHorizontal: 3,
-    marginBottom: 2,
-    alignItems: 'center',
-    width: '100%',
-  },
-  statCardVerticalExpanded: {
-    borderColor: 'rgba(245, 158, 11, 0.4)',
-  },
-  statCardHeader: {
-    alignItems: 'center',
-    width: '100%',
-  },
-  statLabelVertical: {
-    color: '#64748B',
-    fontSize: 7,
-    fontWeight: '800',
-  },
-  modTextVertical: {
-    color: '#F8FAFC',
-    fontSize: 10,
-    fontWeight: '900',
-    marginVertical: 0,
-  },
-  scoreTextVertical: {
-    color: '#475569',
-    fontSize: 7,
-    fontWeight: '700',
-  },
-  skillsSectionVertical: {
-    borderTopWidth: 0.5,
-    borderTopColor: 'rgba(51, 65, 85, 0.4)',
-    marginTop: 2,
-    paddingTop: 2,
-    width: '100%',
-  },
-  skillItemVertical: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 1,
-    width: '100%',
-  },
-  skillDotVertical: {
-    marginRight: 2,
-  },
-  skillBonusVertical: {
-    color: '#64748B',
-    fontSize: 7.5,
-    fontWeight: '800',
-    marginRight: 2,
-    minWidth: 12,
-  },
-  skillBonusProficientVertical: {
-    color: '#F59E0B',
-  },
-  skillNameVertical: {
-    color: '#64748B',
-    fontSize: 7.5,
-    fontWeight: '500',
-    flex: 1,
-  },
-  skillNameProficientVertical: {
-    color: '#E2E8F0',
-    fontWeight: '700',
   },
   badgesRow: {
-    flexDirection: 'column',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
     marginBottom: 4,
   },
@@ -694,24 +718,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(15, 23, 42, 0.6)',
     paddingHorizontal: 4,
-    paddingVertical: 3,
+    paddingVertical: 2,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#334155',
-    marginBottom: 4,
-    width: '100%',
+    flex: 1,
+    marginRight: 4,
   },
   acIconWrapperCompact: {
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 32,
-    height: 32,
+    width: 24,
+    height: 24,
   },
   acTextCompact: {
     position: 'absolute',
     color: '#F8FAFC',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '900',
     zIndex: 10,
   },
@@ -720,32 +744,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(15, 23, 42, 0.6)',
     paddingHorizontal: 4,
-    paddingVertical: 3,
+    paddingVertical: 2,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#334155',
-    width: '100%',
+    flex: 1,
   },
   profIconWrapperCompact: {
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 32,
-    height: 32,
+    width: 24,
+    height: 24,
   },
   profTextCompact: {
     position: 'absolute',
     color: '#F8FAFC',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '900',
     zIndex: 10,
   },
   badgeLabelCompact: {
     color: '#94A3B8',
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: '800',
     letterSpacing: 0.5,
-    marginLeft: 4,
+    marginLeft: 3,
     flex: 1,
   },
   buffBadgeCompact: {
@@ -754,24 +778,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(37, 99, 235, 0.2)',
     borderColor: '#3b82f6',
     borderWidth: 0.5,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
+    paddingHorizontal: 4,
+    paddingVertical: 1.5,
     borderRadius: 6,
-    marginBottom: 6,
+    marginBottom: 4,
     alignSelf: 'stretch',
     justifyContent: 'center',
   },
   buffTextCompact: {
     color: '#60A5FA',
-    fontSize: 8,
+    fontSize: 7.5,
     fontWeight: '800',
-  },
-  charTitleCompact: {
-    color: '#F59E0B',
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 1,
-    marginBottom: 4,
   },
   progressBarBg: {
     height: 6,
@@ -796,24 +813,24 @@ const styles = StyleSheet.create({
   hpValuesWrapper: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    flex: 1.2,
+    flex: 1,
   },
   hpCurrentLabel: {
     color: '#F8FAFC',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '900',
   },
   hpMaxLabel: {
     color: '#64748B',
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
     marginLeft: 1.5,
   },
   quickControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    flex: 1.8,
+    justifyContent: 'center',
+    flex: 1.2,
   },
   controlBtnCompact: {
     width: 24,
@@ -854,70 +871,58 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#334155',
-    paddingVertical: 4,
-    paddingHorizontal: 4,
-    marginTop: 6,
+    paddingVertical: 3,
+    paddingHorizontal: 3,
+    marginTop: 4,
     width: '100%',
   },
   coinBadgeCompact: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1E293B',
-    paddingHorizontal: 3,
-    paddingVertical: 1,
+    paddingHorizontal: 2.5,
+    paddingVertical: 0.5,
     borderRadius: 4,
     borderWidth: 0.5,
     borderColor: '#334155',
-    margin: 1.5,
+    margin: 1,
   },
   coinDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    marginRight: 3,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginRight: 2,
   },
   coinTextCompact: {
     color: '#E2E8F0',
-    fontSize: 7.5,
+    fontSize: 7,
     fontWeight: '700',
   },
   bottomArea: {
-    marginTop: 12,
+    marginTop: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(51, 65, 85, 0.4)',
-    paddingTop: 10,
+    paddingTop: 8,
     width: '100%',
   },
-  hitDiceRow: {
+  hitDiceSection: {
     flexDirection: 'column',
-    marginTop: 8,
-    width: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    flex: 1,
   },
-  hitDiceTopRow: {
+  hitDiceInteractiveContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  hitDiceCubesRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
+    marginBottom: 2,
   },
-  hitDiceLabel: {
-    color: '#64748B',
-    fontSize: 8,
-    fontWeight: '800',
-  },
-  diceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dieButton: {
-    paddingHorizontal: 3,
-  },
-  hitDiceValueSub: {
-    color: '#475569',
-    fontSize: 8,
+  hitDiceTextCompact: {
+    color: '#E2E8F0',
+    fontSize: 9,
     fontWeight: '700',
-    textAlign: 'right',
-    marginTop: 2,
-    paddingRight: 3,
   },
   modalOverlay: {
     flex: 1,
