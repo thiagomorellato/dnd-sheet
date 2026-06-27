@@ -462,9 +462,9 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
               else if (cLower.includes('artífice')) classDesc = 'Um inventor genial que combina magia e tecnologia para infundir itens comuns com propriedades mágicas.';
 
               return (
-                <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', borderColor: '#334155', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 12 }}>
-                  <Text style={{ color: '#94A3B8', fontSize: 11, fontWeight: '700' }}>Sobre o {selectedClass}:</Text>
-                  <Text style={{ color: '#94A3B8', fontSize: 10, marginTop: 2, lineHeight: 14 }}>{classDesc}</Text>
+                <View style={{ backgroundColor: 'rgba(245, 158, 11, 0.03)', borderColor: '#F59E0B', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 12 }}>
+                  <Text style={{ color: '#FBBF24', fontSize: 11, fontWeight: '700' }}>Sobre o {selectedClass}:</Text>
+                  <Text style={{ color: '#E2E8F0', fontSize: 10, marginTop: 2, lineHeight: 14 }}>{classDesc}</Text>
                 </View>
               );
             })()}
@@ -531,7 +531,7 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                   if (!subclassBenefit) return null;
                   return (
                     <View style={{ backgroundColor: 'rgba(245, 158, 11, 0.05)', borderColor: '#F59E0B', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 12 }}>
-                      <Text style={{ color: '#F59E0B', fontSize: 11, fontWeight: '700' }}>Benefício do Arquétipo:</Text>
+                      <Text style={{ color: '#FBBF24', fontSize: 11, fontWeight: '700' }}>Benefício do Arquétipo:</Text>
                       <Text style={{ color: '#E2E8F0', fontSize: 10, marginTop: 2, lineHeight: 14 }}>{subclassBenefit}</Text>
                     </View>
                   );
@@ -603,14 +603,14 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                           style={[
                             styles.pickerBtnWrap, 
                             { width: '31%', marginBottom: 6 }, 
-                            isActive && { borderColor: '#2563EB', backgroundColor: 'rgba(37, 99, 235, 0.08)' }
+                            isActive && { borderColor: '#F59E0B', backgroundColor: 'rgba(245, 158, 11, 0.08)' }
                           ]}
                           onPress={() => {
                             const firstInGroup = raceGroups[group][0];
                             setSelectedRace(firstInGroup);
                           }}
                         >
-                          <Text style={[styles.pickerLabel, isActive && { color: '#60A5FA', fontWeight: '800' }]}>
+                          <Text style={[styles.pickerLabel, isActive && { color: '#FBBF24', fontWeight: '800' }]}>
                             {group}
                           </Text>
                         </TouchableOpacity>
@@ -621,11 +621,11 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                     <TouchableOpacity
                       style={[
                         styles.pickerBtnWrap, 
-                        { width: '31%', marginBottom: 6, borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.03)' }
+                        { width: '31%', marginBottom: 6, borderColor: '#F59E0B', backgroundColor: 'rgba(245, 158, 11, 0.03)' }
                       ]}
                       onPress={() => setIsExpanded(!isExpanded)}
                     >
-                      <Text style={[styles.pickerLabel, { color: '#34D399', fontWeight: '800' }]}>
+                      <Text style={[styles.pickerLabel, { color: '#FBBF24', fontWeight: '800' }]}>
                         {isExpanded ? 'Menos ▲' : 'Mais ▼'}
                       </Text>
                     </TouchableOpacity>
@@ -694,8 +694,8 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                     else if (rLower.includes('firbolg')) traitText = 'Magia Firbolg: Invisibilidade curta e disfarces mágicos. Conversa com plantas e feras.';
 
                     return (
-                      <View style={{ backgroundColor: 'rgba(37, 99, 235, 0.05)', borderColor: '#2563EB', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 6 }}>
-                        <Text style={{ color: '#60A5FA', fontSize: 11, fontWeight: '700' }}>Benefícios de {selectedRace}:</Text>
+                      <View style={{ backgroundColor: 'rgba(245, 158, 11, 0.05)', borderColor: '#F59E0B', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 6 }}>
+                        <Text style={{ color: '#FBBF24', fontSize: 11, fontWeight: '700' }}>Benefícios de {selectedRace}:</Text>
                         <Text style={{ color: '#94A3B8', fontSize: 9, fontWeight: '600', marginTop: 1 }}>Bônus: {bonusText || 'Nenhum'}</Text>
                         {traitText ? <Text style={{ color: '#E2E8F0', fontSize: 10, marginTop: 3, lineHeight: 14 }}>{traitText}</Text> : null}
                       </View>
@@ -731,9 +731,9 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
               const bg = BACKGROUNDS_LIST.find(b => b.name === selectedBackground);
               if (!bg) return null;
               return (
-                <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', borderColor: '#10B981', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 6 }}>
-                  <Text style={{ color: '#34D399', fontSize: 11, fontWeight: '700' }}>Habilidade de {bg.name.split(' (')[0]}:</Text>
-                  <Text style={{ color: '#10B981', fontSize: 9, fontWeight: '600', marginTop: 1 }}>Perícias Iniciais: {bg.skills.join(', ')}</Text>
+                <View style={{ backgroundColor: 'rgba(245, 158, 11, 0.05)', borderColor: '#F59E0B', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 6 }}>
+                  <Text style={{ color: '#FBBF24', fontSize: 11, fontWeight: '700' }}>Habilidade de {bg.name.split(' (')[0]}:</Text>
+                  <Text style={{ color: '#F59E0B', fontSize: 9, fontWeight: '600', marginTop: 1 }}>Perícias Iniciais: {bg.skills.join(', ')}</Text>
                   <Text style={{ color: '#94A3B8', fontSize: 9, fontWeight: '600', marginTop: 1 }}>Recurso: {bg.featureName}</Text>
                   <Text style={{ color: '#E2E8F0', fontSize: 10, marginTop: 3, lineHeight: 14 }}>{bg.featureDesc}</Text>
                 </View>
