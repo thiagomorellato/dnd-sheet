@@ -13,6 +13,7 @@ import {
   Platform,
   UIManager,
   useWindowDimensions,
+  Image,
 } from 'react-native';
 import { Alert } from '../utils/alert';
 import { Character, HP, Resources, CombatLogEntry, ActionType, CombatConfig, EquipmentItem, BaseStats, Coins } from '../types/character';
@@ -691,6 +692,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ characterId, o
           <TouchableOpacity style={styles.backBtnCompact} onPress={onBack} activeOpacity={0.7}>
             <Ionicons name="chevron-back" size={24} color="#F59E0B" />
           </TouchableOpacity>
+          {character.imageUrl && (
+            <Image 
+              source={{ uri: character.imageUrl }} 
+              style={{ width: 40, height: 40, borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#F59E0B' }} 
+            />
+          )}
           <View style={styles.headerTitleContainer}>
             <Text style={styles.charName} numberOfLines={1}>{character.name}</Text>
             <Text style={styles.charSubtitle}>

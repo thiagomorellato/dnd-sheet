@@ -7,7 +7,9 @@ import {
   TextInput,
   ScrollView,
   Switch,
+  Image,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { Alert } from '../utils/alert';
 import { Character, BaseStats, HP, Resources, EquipmentItem } from '../types/character';
 import { StorageService } from '../services/storage';
@@ -45,6 +47,26 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
   const [selectedRace, setSelectedRace] = useState('Humano');
   const [selectedBackground, setSelectedBackground] = useState('Acólito (Acolyte)');
   const [level, setLevel] = useState(5);
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.3,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      if (asset.base64) {
+        setImageUrl(`data:image/jpeg;base64,${asset.base64}`);
+      } else {
+        setImageUrl(asset.uri);
+      }
+    }
+  };
 
   // Step 2: Stats (Standard Array allocation)
   const standardArrayValues = [15, 14, 13, 12, 10, 8];
@@ -461,6 +483,7 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
         current: level,
         dieType: getHitDieType(selectedClass)
       },
+      imageUrl,
     };
 
     try {
@@ -501,6 +524,18 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
               value={name}
               onChangeText={setName}
             />
+
+            <Text style={styles.label}>Imagem do Personagem</Text>
+            <TouchableOpacity style={styles.imagePickerBtn} onPress={pickImage}>
+              {imageUrl ? (
+                <Image source={{ uri: imageUrl }} style={styles.characterImagePreview} />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Ionicons name="camera-outline" size={32} color="#475569" />
+                  <Text style={styles.imagePlaceholderText}>Selecionar Imagem</Text>
+                </View>
+              )}
+            </TouchableOpacity>
 
             <Text style={styles.label}>Classe</Text>
             <View style={styles.pickerRowWrap}>
@@ -973,7 +1008,7 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                       style={[
                         styles.skillCheckBtn, 
                         isSelected && styles.skillCheckBtnActive,
-                        isFromBg && { opacity: 0.8, backgroundColor: 'rgba(59, 130, 246, 0.08)', borderColor: '#3b82f6' },
+                        isFromBg && { opacity: 0.8, backgroundColor: 'rgba(59, 130, 246, 0.1)', borderColor: '#3b82f6' },
                         isRacialFixed && { opacity: 0.8, backgroundColor: 'rgba(245, 158, 11, 0.08)', borderColor: '#F59E0B' },
                         isDisabled && !isSelected && { opacity: 0.3 }
                       ]}
@@ -1724,5 +1759,34 @@ const styles = StyleSheet.create({
   },
   profSmallBadgeTextInactive: {
     color: '#EF4444',
+  },
+  imagePickerBtn: {
+    marginBottom: 16,
+    borderRadius: 8,
+    overflow: 'hidden',
+    alignSelf: 'center',
+  },
+  characterImagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: '#F59E0B',
+  },
+  imagePlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#0F172A',
+    borderWidth: 1,
+    borderColor: '#334155',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imagePlaceholderText: {
+    color: '#475569',
+    fontSize: 10,
+    marginTop: 4,
+    textAlign: 'center',
   },
 });

@@ -8,6 +8,7 @@ import {
   Modal,
   TextInput,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Alert } from '../utils/alert';
 import { Character } from '../types/character';
@@ -133,19 +134,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCharacter, onCre
         style={styles.charDetails} 
         onPress={() => onSelectCharacter(item.id)}
       >
-        <View style={styles.charRow}>
-          <Text style={styles.charName}>{item.name}</Text>
-          <Text style={styles.charBadge}>Lvl {item.level}</Text>
-        </View>
-        <Text style={styles.charClass}>
-          {item.characterClass}
-          {item.background ? ` | ${item.background.split(' (')[0]}` : ''}
-        </Text>
-        <View style={styles.hpMiniBar}>
-          <Ionicons name="heart" size={14} color="#EF4444" style={{ marginRight: 6 }} />
-          <Text style={styles.hpText}>
-            HP: {item.hp.current} / {item.hp.max}
-          </Text>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+           {item.imageUrl && (
+             <Image source={{uri: item.imageUrl}} style={{width: 50, height: 50, borderRadius: 25, marginRight: 12, borderWidth: 2, borderColor: '#F59E0B'}} />
+           )}
+           <View style={{flex: 1}}>
+              <View style={styles.charRow}>
+                <Text style={styles.charName}>{item.name}</Text>
+                <Text style={styles.charBadge}>Lvl {item.level}</Text>
+              </View>
+              <Text style={styles.charClass}>
+                {item.characterClass}
+                {item.background ? ` | ${item.background.split(' (')[0]}` : ''}
+              </Text>
+              <View style={styles.hpMiniBar}>
+                <Ionicons name="heart" size={14} color="#EF4444" style={{ marginRight: 6 }} />
+                <Text style={styles.hpText}>
+                  HP: {item.hp.current} / {item.hp.max}
+                </Text>
+              </View>
+           </View>
         </View>
       </TouchableOpacity>
 

@@ -81,6 +81,7 @@ export interface Character {
   background?: string;
   coins?: Coins;
   hitDice?: HitDice;
+  imageUrl?: string;
 }
 
 export type ActionType = 
