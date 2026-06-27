@@ -541,7 +541,7 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
 
             <Text style={styles.label}>Raça</Text>
             {(() => {
-              // Grouped races mapping based strictly on official D&D Player's Handbook guidelines & related books
+              // Complete D&D 5e sub-races and sub-types list in PT-BR
               const raceGroups: Record<string, string[]> = {
                 'Humano': ['Humano'],
                 'Anão': ['Anão da Colina', 'Anão da Montanha', 'Duergar'],
@@ -550,30 +550,61 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                 'Gnomo': ['Gnomo da Floresta', 'Gnomo das Rochas', 'Gnomo Profundo (Svirfneblin)'],
                 'Tiefling': ['Tiefling', 'Tiefling Feral', 'Tiefling Devil\'s Tongue', 'Tiefling Hellfire', 'Tiefling Winged'],
                 'Orc': ['Orc', 'Meio-Orc'],
-                'Draconato': ['Draconato'],
-                'Genasi': ['Genasi da Terra', 'Genasi do Ar', 'Genasi do Fogo'],
-                'Aasimar': ['Grave Aasimar', 'Protector Aasimar', 'Fallen Aasimar', 'Scourge Aasimar']
+                'Draconato': [
+                  'Draconato Vermelho (Fogo)', 
+                  'Draconato Latão (Fogo)', 
+                  'Draconato Ouro (Fogo)', 
+                  'Draconato Azul (Eletricidade)', 
+                  'Draconato Bronze (Eletricidade)', 
+                  'Draconato Cobre (Ácido)', 
+                  'Draconato Preto (Ácido)', 
+                  'Draconato Verde (Veneno)', 
+                  'Draconato Branco (Frio)', 
+                  'Draconato Prata (Frio)'
+                ],
+                'Genasi': ['Genasi da Terra', 'Genasi do Ar', 'Genasi do Fogo', 'Genasi da Água'],
+                'Aasimar': ['Grave Aasimar', 'Protector Aasimar', 'Fallen Aasimar', 'Scourge Aasimar'],
+                'Aarakocra': ['Aarakocra'],
+                'Tritão': ['Tritão'],
+                'Goliath': ['Goliath'],
+                'Tabaxi': ['Tabaxi'],
+                'Goblin': ['Goblin'],
+                'Hobgoblin': ['Hobgoblin'],
+                'Kenku': ['Kenku'],
+                'Lizardfolk': ['Lizardfolk'],
+                'Firbolg': ['Firbolg'],
+                'Yuan-ti': ['Yuan-ti Pureblood']
               };
 
-              // All other exotic/uncommon races will be grouped inside a collapsable menu
-              const exoticRaces = ['Aarakocra', 'Tritão', 'Goliath', 'Tabaxi', 'Goblin', 'Hobgoblin', 'Kenku', 'Lizardfolk', 'Firbolg', 'Yuan-ti Pureblood'];
+              // Core races visible in the 3x3 grid by default
+              const coreGroupNames = ['Humano', 'Anão', 'Elfo', 'Halfling', 'Gnomo', 'Tiefling', 'Orc', 'Draconato', 'Genasi'];
+              
+              // Exotic/rare groups hidden under the expander by default
+              const extraGroupNames = ['Aasimar', 'Aarakocra', 'Tritão', 'Goliath', 'Tabaxi', 'Goblin', 'Hobgoblin', 'Kenku', 'Lizardfolk', 'Firbolg', 'Yuan-ti'];
 
-              const [showExotics, setShowExotics] = useState(false);
+              const [isExpanded, setIsExpanded] = useState(false);
 
-              // Identify if selected race is exotic or belongs to a group
-              const currentGroup = Object.keys(raceGroups).find(group => raceGroups[group].includes(selectedRace));
-              const isExoticSelected = exoticRaces.includes(selectedRace);
+              // Identify group of the currently selected race
+              const currentGroup = Object.keys(raceGroups).find(group => raceGroups[group].includes(selectedRace)) || 'Humano';
+
+              const visibleGroups = isExpanded 
+                ? [...coreGroupNames, ...extraGroupNames] 
+                : coreGroupNames;
 
               return (
                 <View style={{ marginBottom: 10 }}>
-                  {/* Base Race Categories */}
+                  {/* Unified Race Grid */}
                   <View style={styles.pickerRowWrap}>
-                    {Object.keys(raceGroups).map(group => {
-                      const isActive = currentGroup === group && !isExoticSelected;
+                    {visibleGroups.map(group => {
+                      const isActive = currentGroup === group;
                       return (
                         <TouchableOpacity
                           key={group}
-                          style={[styles.pickerBtnWrap, { width: '31%', marginBottom: 6 }, isActive && { borderColor: '#2563EB', backgroundColor: 'rgba(37, 99, 235, 0.08)' }]}
+                          style={[
+                            styles.pickerBtnWrap, 
+                            { width: '31%', marginBottom: 6 }, 
+                            isActive && { borderColor: '#2563EB', backgroundColor: 'rgba(37, 99, 235, 0.08)' }
+                          ]}
                           onPress={() => {
                             const firstInGroup = raceGroups[group][0];
                             setSelectedRace(firstInGroup);
@@ -586,49 +617,22 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                       );
                     })}
 
-                    {/* Exotics Collapsable Trigger */}
+                    {/* Expand/Collapse Toggle Button in the grid */}
                     <TouchableOpacity
                       style={[
                         styles.pickerBtnWrap, 
-                        { width: '31%', marginBottom: 6 }, 
-                        (isExoticSelected || showExotics) && { borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.08)' }
+                        { width: '31%', marginBottom: 6, borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.03)' }
                       ]}
-                      onPress={() => setShowExotics(!showExotics)}
+                      onPress={() => setIsExpanded(!isExpanded)}
                     >
-                      <Text style={[styles.pickerLabel, (isExoticSelected || showExotics) && { color: '#34D399', fontWeight: '800' }]}>
-                        Exóticas {showExotics ? '▲' : '▼'}
+                      <Text style={[styles.pickerLabel, { color: '#34D399', fontWeight: '800' }]}>
+                        {isExpanded ? 'Menos ▲' : 'Mais ▼'}
                       </Text>
                     </TouchableOpacity>
                   </View>
 
-                  {/* Exotic Races Dropdown Panel */}
-                  {showExotics && (
-                    <View style={{ backgroundColor: '#090D16', padding: 8, borderRadius: 8, marginTop: 4, marginBottom: 8, borderColor: '#10B981', borderWidth: 1 }}>
-                      <Text style={{ color: '#34D399', fontSize: 9, fontWeight: '700', marginBottom: 6, textTransform: 'uppercase' }}>Raças Exóticas / Adicionais</Text>
-                      <View style={styles.pickerRowWrap}>
-                        {exoticRaces.map(exo => {
-                          const isSel = selectedRace === exo;
-                          return (
-                            <TouchableOpacity
-                              key={exo}
-                              style={[styles.pickerBtnWrap, { width: '48%', paddingVertical: 6, marginBottom: 4 }, isSel && { borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}
-                              onPress={() => {
-                                setSelectedRace(exo);
-                                setShowExotics(false); // auto collapse after selection
-                              }}
-                            >
-                              <Text style={[styles.pickerLabel, isSel && { color: '#34D399', fontWeight: '800' }]} numberOfLines={1}>
-                                {exo}
-                              </Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </View>
-                    </View>
-                  )}
-
                   {/* Sub-races under selected category (only show if group has sub-races or if it's not a single race) */}
-                  {currentGroup && raceGroups[currentGroup].length > 1 && !isExoticSelected && (
+                  {currentGroup && raceGroups[currentGroup].length > 1 && (
                     <View style={{ backgroundColor: '#090D16', padding: 8, borderRadius: 8, marginTop: 4, borderColor: '#1E293B', borderWidth: 1 }}>
                       <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700', marginBottom: 6, textTransform: 'uppercase' }}>Sub-raça / Origem</Text>
                       <View style={styles.pickerRowWrap}>
@@ -641,7 +645,7 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                               onPress={() => setSelectedRace(sub)}
                             >
                               <Text style={[styles.pickerLabel, isSel && styles.pickerLabelActive]} numberOfLines={1}>
-                                {sub}
+                                {sub.includes('Draconato') ? sub.replace('Draconato ', '') : sub}
                               </Text>
                             </TouchableOpacity>
                           );

@@ -349,10 +349,14 @@ export const RACES_LIST = [
   'Humano', 'Anão da Colina', 'Anão da Montanha', 'Duergar', 
   'Alto Elfo', 'Elfo da Floresta', 'Drow (Elfo Negro)', 'Eladrin',
   'Halfling Pés-Leves', 'Halfling Robusto', 'Halfling Ghostwise',
-  'Draconato', 'Gnomo da Floresta', 'Gnomo das Rochas', 'Gnomo Profundo (Svirfneblin)',
+  'Draconato Vermelho (Fogo)', 'Draconato Latão (Fogo)', 'Draconato Ouro (Fogo)', 
+  'Draconato Azul (Eletricidade)', 'Draconato Bronze (Eletricidade)', 
+  'Draconato Cobre (Ácido)', 'Draconato Preto (Ácido)', 
+  'Draconato Verde (Veneno)', 'Draconato Branco (Frio)', 'Draconato Prata (Frio)',
+  'Gnomo da Floresta', 'Gnomo das Rochas', 'Gnomo Profundo (Svirfneblin)',
   'Meio-Elfo', 'Meio-Elfo (Drow)', 'Meio-Elfo (Aquático)', 'Meio-Elfo (Elfo da Floresta)',
   'Meio-Orc', 'Tiefling', 'Tiefling Feral', 'Tiefling Devil\'s Tongue', 'Tiefling Hellfire', 'Tiefling Winged',
-  'Aarakocra', 'Genasi da Terra', 'Genasi do Ar', 'Genasi do Fogo',
+  'Aarakocra', 'Genasi da Terra', 'Genasi do Ar', 'Genasi do Fogo', 'Genasi da Água',
   'Grave Aasimar', 'Protector Aasimar', 'Fallen Aasimar', 'Scourge Aasimar',
   'Tritão', 'Goliath', 'Tabaxi', 'Goblin', 'Hobgoblin', 'Kenku', 'Orc', 'Lizardfolk', 'Firbolg', 'Yuan-ti Pureblood'
 ];
@@ -382,6 +386,7 @@ export const getRaceStatBonuses = (race: string): Partial<BaseStats> => {
   if (r.includes('terra') && r.includes('genasi')) return { con: 2, str: 1 };
   if (r.includes('ar') && r.includes('genasi')) return { con: 2, dex: 1 };
   if (r.includes('fogo') && r.includes('genasi')) return { con: 2, int: 1 };
+  if (r.includes('água') && r.includes('genasi')) return { con: 2, wis: 1 };
   if (r.includes('protector')) return { cha: 2, wis: 1 };
   if (r.includes('fallen')) return { cha: 2, str: 1 };
   if (r.includes('scourge') || r.includes('grave')) return { cha: 2, con: 1 };
