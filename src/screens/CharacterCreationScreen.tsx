@@ -147,20 +147,52 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
     }
 
     const classRules = getClassSkillRules(selectedClass);
+    const isClassSkill = classRules.list.includes(skill);
+    const isHumano = selectedRace.toLowerCase().includes('humano');
+    const isMeioElfo = selectedRace.toLowerCase().includes('meio-elfo');
+
+    // If it's not a class skill, it can only be selected if there is a racial bonus slot available (Humano gets 1 extra, Meio-Elfo gets 2 extra)
     setSelectedSkills(prev => {
+      const bgSkills = bg ? bg.skills : [];
+      const currentSelectedNonBg = prev.filter(s => !bgSkills.includes(s));
+      const currentSelectedClassSkills = currentSelectedNonBg.filter(s => classRules.list.includes(s));
+      const currentSelectedRacialSkills = currentSelectedNonBg.filter(s => !classRules.list.includes(s));
+
       if (prev.includes(skill)) {
         return prev.filter(s => s !== skill);
       } else {
-        // Count how many non-background skills are currently selected
-        const bgSkills = bg ? bg.skills : [];
-        const currentClassSkillsCount = prev.filter(s => !bgSkills.includes(s)).length;
-        
-        if (currentClassSkillsCount >= classRules.limit) {
-          Alert.alert(
-            'Limite de Perícias',
-            `Sua classe (${selectedClass}) permite escolher apenas ${classRules.limit} perícias além daquelas dadas pelo seu Antecedente.`
-          );
-          return prev;
+        // Checking class skill allocation limit
+        if (isClassSkill) {
+          if (currentSelectedClassSkills.length >= classRules.limit) {
+            // If class skills are full, check if we can slot it into racial bonus slots instead
+            const allowedRacialSlots = isHumano ? 1 : (isMeioElfo ? 2 : 0);
+            const remainingRacialSlots = allowedRacialSlots - currentSelectedRacialSkills.length;
+            if (remainingRacialSlots <= 0) {
+              Alert.alert(
+                'Limite de Perícias',
+                `Sua classe (${selectedClass}) permite escolher apenas ${classRules.limit} perícias da lista da classe.`
+              );
+              return prev;
+            }
+          }
+        } else {
+          // It's a non-class skill (exotic choice)
+          const allowedRacialSlots = isHumano ? 1 : (isMeioElfo ? 2 : 0);
+          const remainingRacialSlots = allowedRacialSlots - currentSelectedRacialSkills.length;
+          if (remainingRacialSlots <= 0) {
+            if (allowedRacialSlots > 0) {
+              Alert.alert(
+                'Seleção Bloqueada',
+                `Esta perícia não é de sua classe. Como ${selectedRace}, você já usou seu limite de ${allowedRacialSlots} perícias adicionais livres.`
+              );
+            } else {
+              Alert.alert(
+                'Seleção Bloqueada',
+                `Esta perícia não faz parte das opções da sua classe (${selectedClass}) e sua raça não possui bônus de perícia livre.`
+              );
+            }
+            return prev;
+          }
         }
         return [...prev, skill];
       }
