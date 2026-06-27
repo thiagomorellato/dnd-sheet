@@ -385,32 +385,32 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
             activeOpacity={0.7}
           >
             {/* C.A. */}
-            <View style={[styles.hudBadge, styles.hudBadgeHighlight]}>
-              <Ionicons name="shield" size={14} color={combat.shieldOfFaithActive ? '#60A5FA' : '#F59E0B'} style={{ marginRight: 4 }} />
+            <View style={styles.hudBadge}>
+              <Ionicons name="shield" size={16} color={combat.shieldOfFaithActive ? '#60A5FA' : '#F59E0B'} style={{ marginRight: 6 }} />
               <Text style={styles.hudBadgeValue}>{acDisplay}</Text>
             </View>
 
             {/* INICIA. */}
             <View style={styles.hudBadge}>
-              <Ionicons name="flash" size={14} color="#38BDF8" style={{ marginRight: 4 }} />
+              <Ionicons name="flash" size={16} color="#38BDF8" style={{ marginRight: 6 }} />
               <Text style={styles.hudBadgeValue}>{initiativeStr}</Text>
             </View>
 
             {/* DESLOC. */}
             <View style={styles.hudBadge}>
-              <Ionicons name="footsteps" size={14} color="#10B981" style={{ marginRight: 4 }} />
+              <Ionicons name="footsteps" size={16} color="#10B981" style={{ marginRight: 6 }} />
               <Text style={styles.hudBadgeValue}>9m</Text>
             </View>
 
             {/* PERC. PASSIVA */}
             <View style={styles.hudBadge}>
-              <Ionicons name="eye" size={14} color="#A78BFA" style={{ marginRight: 4 }} />
+              <Ionicons name="eye" size={16} color="#A78BFA" style={{ marginRight: 6 }} />
               <Text style={styles.hudBadgeValue}>{passivePerception}</Text>
             </View>
 
             {/* PROF. */}
-            <View style={[styles.hudBadge, styles.hudBadgeHighlight]}>
-              <Ionicons name="star" size={14} color="#F59E0B" style={{ marginRight: 4 }} />
+            <View style={styles.hudBadge}>
+              <Ionicons name="star" size={16} color="#F59E0B" style={{ marginRight: 6 }} />
               <Text style={styles.hudBadgeValue}>+{proficiencyBonus}</Text>
             </View>
           </TouchableOpacity>
@@ -682,17 +682,13 @@ const styles = StyleSheet.create({
     borderColor: '#334155',
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    minWidth: 42,
-  },
-  hudBadgeHighlight: {
-    borderColor: '#F59E0B',
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    minWidth: 46,
   },
   hudBadgeValue: {
     color: '#F8FAFC',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '900',
   },
   vitalsExpandedPanel: {
