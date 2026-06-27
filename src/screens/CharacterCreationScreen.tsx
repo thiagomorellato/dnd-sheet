@@ -459,23 +459,177 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                     </TouchableOpacity>
                   ))}
                 </View>
+                {/* Subclass benefits info card */}
+                {(() => {
+                  let subclassBenefit = '';
+                  const subLower = selectedSubclass.toLowerCase();
+                  if (subLower.includes('berserker')) subclassBenefit = 'Ataques adicionais na Fúria e imunidade a charme/medo.';
+                  else if (subLower.includes('totem') || subLower.includes('totêmico')) subclassBenefit = 'Ganhe resistências de espíritos animais (Urso: resiste a todo dano exceto psíquico).';
+                  else if (subLower.includes('conhecimento') || subLower.includes('lore')) subclassBenefit = 'Ganhe 3 perícias extras e a habilidade Palavras de Corte para reduzir jogadas inimigas.';
+                  else if (subLower.includes('bravura') || subLower.includes('valor')) subclassBenefit = 'Proficiência com armaduras médias, escudos, armas marciais e Inspiração de Combate.';
+                  else if (subLower.includes('espadas') || subLower.includes('swords')) subclassBenefit = 'Estilo de combate de duelo/duas armas e uso de Inspiração para manobras de ataque.';
+                  else if (subLower.includes('corruptor') || subLower.includes('fiend')) subclassBenefit = 'Ganhe HP temporário ao derrotar inimigos e bônus em testes de salvaguarda.';
+                  else if (subLower.includes('arquifada') || subLower.includes('archfey')) subclassBenefit = 'Habilidade de enfeitiçar ou amedrontar criaturas ao seu redor.';
+                  else if (subLower.includes('grande antigo') || subLower.includes('great old')) subclassBenefit = 'Telepatia com qualquer criatura que você possa ver e defesas mentais.';
+                  else if (subLower.includes('lâmina maldita') || subLower.includes('hexblade')) subclassBenefit = 'Use Carisma para jogadas de ataque/dano e amaldiçoe alvos para causar críticos com 19 ou 20.';
+                  else if (subLower.includes('vida') || subLower.includes('life')) subclassBenefit = 'Sua cura ganha bônus de 2 + nível da magia. Proficiência em armadura pesada.';
+                  else if (subLower.includes('tempestade') || subLower.includes('tempest')) subclassBenefit = 'Retalie atacantes com raio/trovão e maximize dano de eletricidade.';
+                  else if (subLower.includes('guerra') || subLower.includes('war')) subclassBenefit = 'Ataque adicional como ação bônus e bônus de +10 no acerto. Proficiência em armadura pesada.';
+                  else if (subLower.includes('luz') || subLower.includes('light')) subclassBenefit = 'Use futilidades de luz para impor desvantagem a atacantes e conjure Bola de Fogo.';
+                  else if (subLower.includes('lua') || subLower.includes('moon')) subclassBenefit = 'Combata sob a forma de feras muito mais poderosas (Nível de Desafio 1 já no nível 2).';
+                  else if (subLower.includes('terra') || subLower.includes('land')) subclassBenefit = 'Recupere slots de magia em descansos curtos e ganhe magias de terrenos.';
+                  else if (subLower.includes('dracônica') || subLower.includes('draconic')) subclassBenefit = 'HP extra por nível, armadura natural de 13 + Dex e asas no nível 14.';
+                  else if (subLower.includes('selvagem') || subLower.includes('wild')) subclassBenefit = 'Role na tabela de Surtos de Magia Selvagem para efeitos mágicos aleatórios.';
+                  else if (subLower.includes('campeão') || subLower.includes('champion')) subclassBenefit = 'Margem de acerto crítico reduzida para 19 ou 20 nos dados.';
+                  else if (subLower.includes('mestre de batalha') || subLower.includes('battle')) subclassBenefit = 'Ganhe 4 Dados de Superioridade (d8) e aprenda manobras de combate para desarmar, derrubar, etc.';
+                  else if (subLower.includes('arcano') || subLower.includes('knight')) subclassBenefit = 'Aprenda magias de Mago (Abjuração/Evocação) e invoque sua arma vinculada.';
+                  else if (subLower.includes('ladrão') || subLower.includes('thief')) subclassBenefit = 'Use as mãos rápidas para usar itens como ação bônus e escale paredes com velocidade.';
+                  else if (subLower.includes('assassino') || subLower.includes('assassin')) subclassBenefit = 'Vantagem contra quem não agiu e acertos críticos automáticos contra alvos surpresos.';
+                  else if (subLower.includes('espadachim') || subLower.includes('swash')) subclassBenefit = 'Adicione Carisma na Iniciativa e use Ataque Furtivo sem precisar de aliados próximos.';
+                  else if (subLower.includes('evocação')) subclassBenefit = 'Esculpa feitiços de área para que seus aliados não sofram dano deles.';
+                  else if (subLower.includes('abjuração')) subclassBenefit = 'Crie uma barreira arcana protetora que absorve dano direcionado a você.';
+                  else if (subLower.includes('necromancia')) subclassBenefit = 'Recupere vida ao matar inimigos com magias e manipule mortos-vivos com perícia.';
+                  else if (subLower.includes('mão aberta') || subLower.includes('open')) subclassBenefit = 'Adicione efeitos extras ao seu Rajada de Golpes (derrubar, empurrar ou impedir reações).';
+                  else if (subLower.includes('sombras') || subLower.includes('shadow')) subclassBenefit = 'Fique invisível nas sombras e teletransporte-se através delas.';
+                  else if (subLower.includes('devoção') || subLower.includes('devotion')) subclassBenefit = 'Adicione Carisma nas jogadas de ataque e emane uma aura contra efeitos de charme.';
+                  else if (subLower.includes('vingança') || subLower.includes('vengeance')) subclassBenefit = 'Ganhe vantagem de ataque contra um alvo específico usando Voto de Inimizade.';
+                  else if (subLower.includes('anciões') || subLower.includes('ancients')) subclassBenefit = 'Emane uma aura que concede a você e aliados resistência contra dano de magias.';
+                  else if (subLower.includes('caçador') || subLower.includes('hunter')) subclassBenefit = 'Escolha habilidades ofensivas contra hordas ou presas gigantes.';
+                  else if (subLower.includes('bestas') || subLower.includes('beast')) subclassBenefit = 'Obtenha um companheiro animal que luta ao seu lado e obedece aos seus comandos.';
+                  else if (subLower.includes('gloom')) subclassBenefit = 'Invisível na escuridão sob visão no escuro e ataque extra no primeiro turno de combate.';
+                  else if (subLower.includes('alquimista')) subclassBenefit = 'Crie elixires experimentais que concedem voo, cura, CA ou bônus de ataque.';
+                  else if (subLower.includes('armeiro') || subLower.includes('armorer')) subclassBenefit = 'Crie uma armadura tecnológica com modos Guardião (defensivo) ou Infiltrador (furtivo).';
+                  else if (subLower.includes('artilheiro') || subLower.includes('artillerist')) subclassBenefit = 'Invoque canhões arcanos móveis que atiram fogo, projéteis de força ou concedem escudos temporários.';
+                  else if (subLower.includes('serralheiro') || subLower.includes('smith')) subclassBenefit = 'Lute ao lado de um Defensor de Aço e use Inteligência nas jogadas de ataque físico.';
+
+                  if (!subclassBenefit) return null;
+                  return (
+                    <View style={{ backgroundColor: 'rgba(245, 158, 11, 0.05)', borderColor: '#F59E0B', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 4, marginBottom: 12 }}>
+                      <Text style={{ color: '#F59E0B', fontSize: 11, fontWeight: '700' }}>Benefício do Arquétipo:</Text>
+                      <Text style={{ color: '#E2E8F0', fontSize: 10, marginTop: 2, lineHeight: 14 }}>{subclassBenefit}</Text>
+                    </View>
+                  );
+                })()}
               </>
             )}
 
             <Text style={styles.label}>Raça</Text>
-            <View style={styles.pickerRowWrap}>
-              {RACES_LIST.map(r => (
-                <TouchableOpacity
-                  key={r}
-                  style={[styles.pickerBtnWrap, selectedRace === r && styles.pickerBtnActive]}
-                  onPress={() => setSelectedRace(r)}
-                >
-                  <Text style={[styles.pickerLabel, selectedRace === r && styles.pickerLabelActive]}>
-                    {r}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            {(() => {
+              // Grouped races mapping
+              const raceGroups: Record<string, string[]> = {
+                'Anão': ['Anão da Colina', 'Anão da Montanha', 'Duergar'],
+                'Elfo': ['Alto Elfo', 'Elfo da Floresta', 'Drow (Elfo Negro)', 'Eladrin'],
+                'Halfling': ['Halfling Pés-Leves', 'Halfling Robusto', 'Halfling Ghostwise'],
+                'Gnomo': ['Gnomo da Floresta', 'Gnomo das Rochas', 'Gnomo Profundo (Svirfneblin)'],
+                'Meio-Elfo': ['Meio-Elfo', 'Meio-Elfo (Drow)', 'Meio-Elfo (Aquático)', 'Meio-Elfo (Elfo da Floresta)'],
+                'Tiefling': ['Tiefling', 'Tiefling Feral', 'Tiefling Devil\'s Tongue', 'Tiefling Hellfire', 'Tiefling Winged'],
+                'Genasi': ['Genasi da Terra', 'Genasi do Ar', 'Genasi do Fogo'],
+                'Aasimar': ['Grave Aasimar', 'Protector Aasimar', 'Fallen Aasimar', 'Scourge Aasimar'],
+                'Outros': ['Humano', 'Draconato', 'Meio-Orc', 'Aarakocra', 'Tritão', 'Goliath', 'Tabaxi', 'Goblin', 'Hobgoblin', 'Kenku', 'Orc', 'Lizardfolk', 'Firbolg', 'Yuan-ti Pureblood']
+              };
+
+              // State for expanded race group (local helper since we are inside a React component)
+              // We'll store which parent race group is selected to show sub-options
+              const [activeGroup, setActiveGroup] = useState<string>('Outros');
+
+              // Identify which group the selectedRace belongs to
+              const currentGroup = Object.keys(raceGroups).find(group => raceGroups[group].includes(selectedRace)) || 'Outros';
+
+              return (
+                <View style={{ marginBottom: 10 }}>
+                  {/* Base Race Categories */}
+                  <View style={styles.pickerRowWrap}>
+                    {Object.keys(raceGroups).map(group => {
+                      const isActive = currentGroup === group;
+                      return (
+                        <TouchableOpacity
+                          key={group}
+                          style={[styles.pickerBtnWrap, { width: '31%', marginBottom: 6 }, isActive && { borderColor: '#2563EB', backgroundColor: 'rgba(37, 99, 235, 0.08)' }]}
+                          onPress={() => {
+                            // Automatically select the first race in this group
+                            const firstInGroup = raceGroups[group][0];
+                            setSelectedRace(firstInGroup);
+                          }}
+                        >
+                          <Text style={[styles.pickerLabel, isActive && { color: '#60A5FA', fontWeight: '800' }]}>
+                            {group}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+
+                  {/* Sub-races under selected category */}
+                  <View style={{ backgroundColor: '#090D16', padding: 8, borderRadius: 8, marginTop: 4, borderColor: '#1E293B', borderWidth: 1 }}>
+                    <Text style={{ color: '#64748B', fontSize: 9, fontWeight: '700', marginBottom: 6, textTransform: 'uppercase' }}>Sub-raça / Origem</Text>
+                    <View style={styles.pickerRowWrap}>
+                      {raceGroups[currentGroup].map(sub => {
+                        const isSel = selectedRace === sub;
+                        return (
+                          <TouchableOpacity
+                            key={sub}
+                            style={[styles.pickerBtnWrap, { width: '48%', paddingVertical: 6, marginBottom: 4 }, isSel && styles.pickerBtnActive]}
+                            onPress={() => setSelectedRace(sub)}
+                          >
+                            <Text style={[styles.pickerLabel, isSel && styles.pickerLabelActive]} numberOfLines={1}>
+                              {sub}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+
+                  {/* Race benefits info card */}
+                  {(() => {
+                    const bonuses = getRaceStatBonuses(selectedRace);
+                    const bonusText = Object.entries(bonuses)
+                      .map(([stat, val]) => `${stat.toUpperCase()} +${val}`)
+                      .join(', ');
+
+                    let traitText = '';
+                    const rLower = selectedRace.toLowerCase();
+                    if (rLower.includes('humano')) traitText = 'Versatilidade incomparável. +1 em todos os atributos base.';
+                    else if (rLower.includes('colina')) traitText = 'Tenacidade Anã: +1 HP máximo extra por nível e Visão no Escuro.';
+                    else if (rLower.includes('montanha')) traitText = 'Treinamento com Armaduras Anãs: Proficiência com armaduras leves e médias.';
+                    else if (rLower.includes('duergar')) traitText = 'Resistência mental contra ilusões, paralisia e magias de invisibilidade/crescimento inatas.';
+                    else if (rLower.includes('alto elfo')) traitText = 'Aprende 1 Truque extra de Mago e ganha proficiência com espadas/arcos.';
+                    else if (rLower.includes('floresta')) traitText = 'Pés Ligeiros: Velocidade base aumenta para 10.5m (35ft) e camuflagem natural.';
+                    else if (rLower.includes('drow')) traitText = 'Visão no Escuro Superior (24m) e Magia Drow inata (Globo de Trevas).';
+                    else if (rLower.includes('eladrin')) traitText = 'Passo Fey: Teletransporte de 9 metros como ação bônus com efeitos sazonais.';
+                    else if (rLower.includes('pés-leves')) traitText = 'Furtividade Natural: Consegue se esconder atrás de criaturas maiores que você.';
+                    else if (rLower.includes('robusto')) traitText = 'Resiliência dos Robustos: Vantagem e resistência contra venenos.';
+                    else if (rLower.includes('ghostwise')) traitText = 'Telepatia silenciosa com criaturas próximas a até 9 metros.';
+                    else if (rLower.includes('draconato')) traitText = 'Ancestralidade Dracônica: Arma de Sopro e resistência ao elemento correspondente.';
+                    else if (rLower.includes('gnomo da floresta')) traitText = 'Ilusionista Natural: Aprende o truque Ilusão Menor e fala com pequenos animais.';
+                    else if (rLower.includes('gnomo das rochas')) traitText = 'Gingado de Engenheiro: Cria pequenos dispositivos mecânicos (brinquedos, isqueiros).';
+                    else if (rLower.includes('svirfneblin')) traitText = 'Camuflagem de pedra e visão no escuro superior de 36 metros.';
+                    else if (rLower.includes('meio-elfo')) traitText = 'Versatilidade em Perícias: Ganha proficiência em duas perícias à sua escolha.';
+                    else if (rLower.includes('meio-orc')) traitText = 'Ataques Selvagens (críticos causam mais dano) e Resistência Inabalável (não cai a 0 HP uma vez).';
+                    else if (rLower.includes('winged')) traitText = 'Asas de Couro: Possui velocidade de voo natural de 9 metros.';
+                    else if (rLower.includes('feral')) traitText = 'Agilidade inata e inteligência apurada típica dos tieflings selvagens.';
+                    else if (rLower.includes('tiefling')) traitText = 'Resistência Infernal ao fogo e magias inatas de escuridão e fogo.';
+                    else if (rLower.includes('aarakocra')) traitText = 'Velocidade de voo natural de 15 metros (50ft) e garras afiadas.';
+                    else if (rLower.includes('goliath')) traitText = 'Resistência de Pedra: Reduz dano sofrido em 1d12 + Con. Considerado tamanho Grande.';
+                    else if (rLower.includes('tritão')) traitText = 'Guardião das profundezas: Resiste a frio, fala com animais aquáticos e respira na água.';
+                    else if (rLower.includes('tabaxi')) traitText = 'Agilidade Felina: Dobra a velocidade no turno. Garras escaladoras e proficiência em Furtividade.';
+                    else if (rLower.includes('goblin')) traitText = 'Fúria dos Pequenos: Causa dano extra contra alvos maiores. Escapa como ação bônus.';
+                    else if (rLower.includes('hobgoblin')) traitText = 'Salvo pela União: Ganha bônus em jogadas que falhou perto de aliados.';
+                    else if (rLower.includes('kenku')) traitText = 'Treinamento Kenku: Imita sons perfeitamente e é proficiente em duas perícias de ladino.';
+                    else if (rLower.includes('lizardfolk')) traitText = 'Armadura natural de 13 + Dex. Mordida regenerativa e produz armas de ossos.';
+                    else if (rLower.includes('firbolg')) traitText = 'Magia Firbolg: Invisibilidade curta e disfarces mágicos. Conversa com plantas e feras.';
+
+                    return (
+                      <View style={{ backgroundColor: 'rgba(37, 99, 235, 0.05)', borderColor: '#2563EB', borderWidth: 0.5, borderRadius: 8, padding: 10, marginTop: 6 }}>
+                        <Text style={{ color: '#60A5FA', fontSize: 11, fontWeight: '700' }}>Benefícios de {selectedRace}:</Text>
+                        <Text style={{ color: '#94A3B8', fontSize: 9, fontWeight: '600', marginTop: 1 }}>Bônus: {bonusText || 'Nenhum'}</Text>
+                        {traitText ? <Text style={{ color: '#E2E8F0', fontSize: 10, marginTop: 3, lineHeight: 14 }}>{traitText}</Text> : null}
+                      </View>
+                    );
+                  })()}
+                </View>
+              );
+            })()}
 
             <Text style={styles.label}>Antecedente</Text>
             <View style={styles.pickerRowWrap}>
@@ -498,6 +652,7 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                 </TouchableOpacity>
               ))}
             </View>
+
 
             <Text style={styles.label}>Nível (1 - 6)</Text>
             <View style={styles.levelRow}>
