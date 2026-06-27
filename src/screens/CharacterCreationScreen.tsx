@@ -57,8 +57,8 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
     cha: 8,
   });
 
-  // Step 3: Skills (Defaulting to Acolyte skills)
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(['Insight', 'Religion']);
+  // Step 3: Skills (Defaulting to Acolyte skills in PT-BR)
+  const [selectedSkills, setSelectedSkills] = useState<string[]>(['Intuição', 'Religião']);
 
   // Step 4: Equipment
   const [selectedWeaponIdx, setSelectedWeaponIdx] = useState(0);
@@ -123,19 +123,19 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
   // Get skills allowed by class and maximum choices allowed
   const getClassSkillRules = (className: string): { limit: number; list: string[] } => {
     const cls = className.toLowerCase();
-    if (cls.includes('bárbaro')) return { limit: 2, list: ['Animal Handling', 'Athletics', 'Intimidation', 'Nature', 'Perception', 'Survival'] };
+    if (cls.includes('bárbaro')) return { limit: 2, list: ['Adestrar Animais', 'Atletismo', 'Intimidação', 'Natureza', 'Percepção', 'Sobrevivência'] };
     if (cls.includes('bardo')) return { limit: 3, list: SKILLS_LIST }; // Bards can choose any 3 skills
-    if (cls.includes('bruxo')) return { limit: 2, list: ['Arcana', 'Deception', 'History', 'Intimidation', 'Investigation', 'Nature', 'Religion'] };
-    if (cls.includes('clérigo')) return { limit: 2, list: ['History', 'Insight', 'Medicine', 'Persuasion', 'Religion'] };
-    if (cls.includes('druida')) return { limit: 2, list: ['Arcana', 'Animal Handling', 'Insight', 'Medicine', 'Nature', 'Perception', 'Religion', 'Survival'] };
-    if (cls.includes('feiticeiro')) return { limit: 2, list: ['Arcana', 'Deception', 'Insight', 'Intimidation', 'Persuasion', 'Religion'] };
-    if (cls.includes('guerreiro')) return { limit: 2, list: ['Acrobatics', 'Animal Handling', 'Athletics', 'History', 'Insight', 'Intimidation', 'Perception', 'Survival'] };
-    if (cls.includes('ladino')) return { limit: 4, list: ['Acrobatics', 'Athletics', 'Deception', 'Insight', 'Intimidation', 'Investigation', 'Perception', 'Performance', 'Persuasion', 'Sleight of Hand', 'Stealth'] };
-    if (cls.includes('mago')) return { limit: 2, list: ['Arcana', 'History', 'Insight', 'Investigation', 'Medicine', 'Religion'] };
-    if (cls.includes('monge')) return { limit: 2, list: ['Acrobatics', 'Athletics', 'History', 'Insight', 'Religion', 'Stealth'] };
-    if (cls.includes('paladino')) return { limit: 2, list: ['Athletics', 'Insight', 'Intimidation', 'Medicine', 'Persuasion', 'Religion'] };
-    if (cls.includes('patrulheiro')) return { limit: 3, list: ['Animal Handling', 'Athletics', 'Insight', 'Investigation', 'Nature', 'Perception', 'Stealth', 'Survival'] };
-    if (cls.includes('artífice')) return { limit: 2, list: ['Arcana', 'History', 'Investigation', 'Medicine', 'Nature', 'Sleight of Hand'] };
+    if (cls.includes('bruxo')) return { limit: 2, list: ['Arcanismo', 'Enganação', 'História', 'Intimidação', 'Investigação', 'Natureza', 'Religião'] };
+    if (cls.includes('clérigo')) return { limit: 2, list: ['História', 'Intuição', 'Medicina', 'Persuasão', 'Religião'] };
+    if (cls.includes('druida')) return { limit: 2, list: ['Arcanismo', 'Adestrar Animais', 'Intuição', 'Medicina', 'Natureza', 'Percepção', 'Religião', 'Sobrevivência'] };
+    if (cls.includes('feiticeiro')) return { limit: 2, list: ['Arcanismo', 'Enganação', 'Intuição', 'Intimidação', 'Persuasão', 'Religião'] };
+    if (cls.includes('guerreiro')) return { limit: 2, list: ['Acrobacia', 'Adestrar Animais', 'Atletismo', 'História', 'Intuição', 'Intimidação', 'Percepção', 'Sobrevivência'] };
+    if (cls.includes('ladino')) return { limit: 4, list: ['Acrobacia', 'Atletismo', 'Enganação', 'Intuição', 'Intimidação', 'Investigação', 'Percepção', 'Atuação', 'Persuasão', 'Prestidigitação', 'Furtividade'] };
+    if (cls.includes('mago')) return { limit: 2, list: ['Arcanismo', 'História', 'Intuição', 'Investigação', 'Medicina', 'Religião'] };
+    if (cls.includes('monge')) return { limit: 2, list: ['Acrobacia', 'Atletismo', 'História', 'Intuição', 'Religião', 'Furtividade'] };
+    if (cls.includes('paladino')) return { limit: 2, list: ['Atletismo', 'Intuição', 'Intimidação', 'Medicina', 'Persuasão', 'Religião'] };
+    if (cls.includes('patrulheiro')) return { limit: 3, list: ['Adestrar Animais', 'Atletismo', 'Intuição', 'Investigação', 'Natureza', 'Percepção', 'Furtividade', 'Sobrevivência'] };
+    if (cls.includes('artífice')) return { limit: 2, list: ['Arcanismo', 'História', 'Investigação', 'Medicina', 'Natureza', 'Prestidigitação'] };
     return { limit: 2, list: [] };
   };
 
@@ -149,10 +149,10 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
     }
 
     // 2. Fixed Racial skills are locked (Elfo: Perception, Meio-Orc: Intimidation, Tabaxi: Stealth & Perception, Goliath: Athletics)
-    if (rLower.includes('elfo') && !rLower.includes('meio-elfo') && skill === 'Perception') return;
-    if (rLower.includes('meio-orc') && skill === 'Intimidation') return;
-    if (rLower.includes('tabaxi') && (skill === 'Stealth' || skill === 'Perception')) return;
-    if (rLower.includes('goliath') && skill === 'Athletics') return;
+    if (rLower.includes('elfo') && !rLower.includes('meio-elfo') && skill === 'Percepção') return;
+    if (rLower.includes('meio-orc') && skill === 'Intimidação') return;
+    if (rLower.includes('tabaxi') && (skill === 'Furtividade' || skill === 'Percepção')) return;
+    if (rLower.includes('goliath') && skill === 'Atletismo') return;
 
     const classRules = getClassSkillRules(selectedClass);
     const isClassSkill = classRules.list.includes(skill);
@@ -161,18 +161,18 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
     const isKenku = rLower.includes('kenku');
     const isLizardfolk = rLower.includes('lizardfolk');
 
-    // Kenku and Lizardfolk list restrictions
-    const kenkuAllowed = ['Acrobatics', 'Stealth', 'Deception', 'Sleight of Hand'];
-    const lizardfolkAllowed = ['Survival', 'Nature', 'Perception', 'Stealth', 'Animal Handling'];
+    // Kenku and Lizardfolk list restrictions (translated to PT-BR)
+    const kenkuAllowed = ['Acrobacia', 'Furtividade', 'Enganação', 'Prestidigitação'];
+    const lizardfolkAllowed = ['Sobrevivência', 'Natureza', 'Percepção', 'Furtividade', 'Adestrar Animais'];
 
     setSelectedSkills(prev => {
       const bgSkills = bg ? bg.skills : [];
       
       const fixedRacialSkills: string[] = [];
-      if (rLower.includes('elfo') && !rLower.includes('meio-elfo')) fixedRacialSkills.push('Perception');
-      if (rLower.includes('meio-orc')) fixedRacialSkills.push('Intimidation');
-      if (rLower.includes('tabaxi')) { fixedRacialSkills.push('Stealth'); fixedRacialSkills.push('Perception'); }
-      if (rLower.includes('goliath')) fixedRacialSkills.push('Athletics');
+      if (rLower.includes('elfo') && !rLower.includes('meio-elfo')) fixedRacialSkills.push('Percepção');
+      if (rLower.includes('meio-orc')) fixedRacialSkills.push('Intimidação');
+      if (rLower.includes('tabaxi')) { fixedRacialSkills.push('Furtividade'); fixedRacialSkills.push('Percepção'); }
+      if (rLower.includes('goliath')) fixedRacialSkills.push('Atletismo');
 
       // The user wants to toggle the skill
       if (prev.includes(skill)) {
@@ -885,10 +885,10 @@ export const CharacterCreationScreen: React.FC<CharacterCreationScreenProps> = (
                 
                 const rLower = selectedRace.toLowerCase();
                 const isRacialFixed = (
-                  (rLower.includes('elfo') && !rLower.includes('meio-elfo') && skill === 'Perception') ||
-                  (rLower.includes('meio-orc') && skill === 'Intimidation') ||
-                  (rLower.includes('tabaxi') && (skill === 'Stealth' || skill === 'Perception')) ||
-                  (rLower.includes('goliath') && skill === 'Athletics')
+                  (rLower.includes('elfo') && !rLower.includes('meio-elfo') && skill === 'Percepção') ||
+                  (rLower.includes('meio-orc') && skill === 'Intimidação') ||
+                  (rLower.includes('tabaxi') && (skill === 'Furtividade' || skill === 'Percepção')) ||
+                  (rLower.includes('goliath') && skill === 'Atletismo')
                 );
 
                 const isSelected = selectedSkills.includes(skill) || isRacialFixed || isFromBg;
