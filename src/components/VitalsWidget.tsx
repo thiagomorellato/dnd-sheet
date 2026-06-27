@@ -485,13 +485,17 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
               key={ammo.id} 
               style={styles.ammoCard}
               onPress={() => {
-                if (ammo.customResourceMax && ammo.customResourceMax > 0 && onUpdateEquipment) {
+                console.log('Ammo clicked!', ammo.name, ammo.customResourceMax, !!onUpdateEquipment);
+                if (ammo.customResourceMax !== undefined && ammo.customResourceMax > 0 && onUpdateEquipment) {
                   const newEq = equipment.map(e => 
                     e.id === ammo.id 
                       ? { ...e, customResourceMax: (e.customResourceMax || 0) - 1 }
                       : e
                   );
+                  console.log('Calling onUpdateEquipment with new max:', (ammo.customResourceMax || 0) - 1);
                   onUpdateEquipment(newEq);
+                } else {
+                  console.log('Condition failed:', { val: ammo.customResourceMax, fn: !!onUpdateEquipment });
                 }
               }}
             >

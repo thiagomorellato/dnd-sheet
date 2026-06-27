@@ -718,8 +718,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ characterId, o
             onUpdateEquipment={async (updatedEq) => {
               if (character) {
                 const updatedChar = { ...character, equipment: updatedEq };
-                await saveCharacter(updatedChar);
-                setCharacter(updatedChar);
+                try {
+                  await StorageService.saveCharacter(updatedChar);
+                  setCharacter(updatedChar);
+                } catch (err) {
+                  console.error('Error saving ammo:', err);
+                }
               }
             }}
           />
