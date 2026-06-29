@@ -14,20 +14,14 @@ interface AttributesGridProps {
   level: number;
 }
 const SKILL_MAPPING: Record<keyof BaseStats, string[]> = {
-  str: ['Athletics'],
-  dex: ['Acrobatics', 'Sleight', 'Stealth'],
+  str: ['Atletismo'],
+  dex: ['Acrobacia', 'Furtividade', 'Prestidigitação'],
   con: [],
-  int: ['Arcana', 'History', 'Investig.', 'Nature', 'Religion'],
-  wis: ['Animal H.', 'Insight', 'Medicine', 'Perception', 'Survival'],
-  cha: ['Deception', 'Intimid.', 'Perform.', 'Persuasion']
+  int: ['Arcanismo', 'História', 'Investigação', 'Natureza', 'Religião'],
+  wis: ['Adestrar Animais', 'Intuição', 'Medicina', 'Percepção', 'Sobrevivência'],
+  cha: ['Atuação', 'Enganação', 'Intimidação', 'Persuasão']
 };
-const SKILL_FULL_NAMES: Record<string, string> = {
-  'Sleight': 'Sleight of Hand',
-  'Investig.': 'Investigation',
-  'Animal H.': 'Animal Handling',
-  'Intimid.': 'Intimidation',
-  'Perform.': 'Performance'
-};
+const SKILL_FULL_NAMES: Record<string, string> = {};
 export const AttributesGrid: React.FC<AttributesGridProps> = ({
   stats,
   proficiencies = [],
@@ -71,9 +65,15 @@ export const AttributesGrid: React.FC<AttributesGridProps> = ({
         const skills = SKILL_MAPPING[stat];
         const modVal = getModifierVal(stats[stat]);
         return <View key={stat} style={[styles.statCol, expanded && styles.statColExpanded, expanded && skills.length === 0 && styles.statColExpandedNoSkills]}>
-              {/* Stat Card Header */}
               <View style={styles.statHeader}>
-                <Text style={styles.label}>{stat.toUpperCase()}</Text>
+                <Text style={styles.label}>{
+                  stat === 'str' ? 'FOR' :
+                  stat === 'dex' ? 'DES' :
+                  stat === 'con' ? 'CON' :
+                  stat === 'int' ? 'INT' :
+                  stat === 'wis' ? 'SAB' :
+                  stat === 'cha' ? 'CAR' : stat.toUpperCase()
+                }</Text>
                 <Text style={styles.modText}>{getModifierStr(stats[stat])}</Text>
                 <Text style={styles.scoreText}>{stats[stat]}</Text>
               </View>
@@ -89,9 +89,6 @@ export const AttributesGrid: React.FC<AttributesGridProps> = ({
                 return <View key={skill} style={styles.skillItem}>
                             <View style={styles.skillRow}>
                               <Ionicons name="ellipse" size={4} color={isProficient ? colors.accentAmber : colors.borderHighlight} style={styles.skillDot} />
-                              <Text style={[styles.skillBonus, isProficient && styles.skillBonusProficient]}>
-                                {finalBonusStr}
-                              </Text>
                             </View>
                             <Text style={[styles.skillName, isProficient && styles.skillNameProficient]} numberOfLines={1}>
                               {skill}

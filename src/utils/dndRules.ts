@@ -103,7 +103,7 @@ export const CLASSES_LIST: ClassData[] = [
       'Domínio do Conhecimento (Knowledge)',
       'Domínio da Trapaça (Trickery)',
       'Domínio da Sepultura (Grave)',
-      'Domínio da Forja (Forge)',
+      'Domínio da Força (Forge)',
       'Domínio da Morte (Death)',
       'Domínio Arcano (Arcana)'
     ],
@@ -429,7 +429,7 @@ export const AMMUNITION_TEMPLATES: AmmunitionTemplate[] = [
 
 export const WEAPON_TEMPLATES: WeaponTemplate[] = [
   {
-    "name": "Club",
+    "name": "Clava",
     "dmgDice": "1d4",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -440,7 +440,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Dagger",
+    "name": "Adaga",
     "dmgDice": "1d4",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -453,7 +453,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Greatclub",
+    "name": "Clava Grande",
     "dmgDice": "1d8",
     "handedness": "2 Mãos",
     "dmgType": "Cortante",
@@ -464,7 +464,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Handaxe",
+    "name": "Machadinha",
     "dmgDice": "1d6",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -476,7 +476,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Javelin",
+    "name": "Azagaia",
     "dmgDice": "1d6",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -499,7 +499,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Mace",
+    "name": "Maça",
     "dmgDice": "1d6",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -508,7 +508,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Quarterstaff",
+    "name": "Bordão",
     "dmgDice": "1d6",
     "handedness": "Versátil",
     "dmgType": "Cortante",
@@ -520,7 +520,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "dmgDiceVersatile": "1d8"
   },
   {
-    "name": "Sickle",
+    "name": "Foice Curta",
     "dmgDice": "1d4",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -531,7 +531,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Spear",
+    "name": "Lança",
     "dmgDice": "1d6",
     "handedness": "Versátil",
     "dmgType": "Cortante",
@@ -557,7 +557,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "À Distância"
   },
   {
-    "name": "Dart",
+    "name": "Dardo",
     "dmgDice": "1d4",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -569,7 +569,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "À Distância"
   },
   {
-    "name": "Shortbow",
+    "name": "Arco Curto",
     "dmgDice": "1d6",
     "handedness": "2 Mãos",
     "dmgType": "Cortante",
@@ -581,7 +581,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "À Distância"
   },
   {
-    "name": "Sling",
+    "name": "Funda",
     "dmgDice": "1d4",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -592,7 +592,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "À Distância"
   },
   {
-    "name": "Battleaxe",
+    "name": "Machado de Batalha",
     "dmgDice": "1d8",
     "handedness": "Versátil",
     "dmgType": "Cortante",
@@ -604,7 +604,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "dmgDiceVersatile": "1d10"
   },
   {
-    "name": "Flail",
+    "name": "Mangual",
     "dmgDice": "1d8",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -626,7 +626,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Greataxe",
+    "name": "Machado Grande",
     "dmgDice": "1d12",
     "handedness": "2 Mãos",
     "dmgType": "Cortante",
@@ -638,7 +638,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Greatsword",
+    "name": "Espada Grande",
     "dmgDice": "2d6",
     "handedness": "2 Mãos",
     "dmgType": "Cortante",
@@ -650,7 +650,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Halberd",
+    "name": "Alabarda",
     "dmgDice": "1d10",
     "handedness": "2 Mãos",
     "dmgType": "Cortante",
@@ -663,7 +663,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Lance",
+    "name": "Lança de Montaria",
     "dmgDice": "1d12",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -675,7 +675,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Longsword",
+    "name": "Espada Longa",
     "dmgDice": "1d8",
     "handedness": "Versátil",
     "dmgType": "Cortante",
@@ -687,7 +687,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "dmgDiceVersatile": "1d10"
   },
   {
-    "name": "Maul",
+    "name": "Malho",
     "dmgDice": "2d6",
     "handedness": "2 Mãos",
     "dmgType": "Cortante",
@@ -699,7 +699,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Morningstar",
+    "name": "Estrela da Manhã",
     "dmgDice": "1d8",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -708,7 +708,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Pike",
+    "name": "Pique",
     "dmgDice": "1d10",
     "handedness": "2 Mãos",
     "dmgType": "Cortante",
@@ -721,7 +721,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Rapier",
+    "name": "Rapieira",
     "dmgDice": "1d8",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -732,7 +732,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Scimitar",
+    "name": "Cimitarra",
     "dmgDice": "1d6",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -744,7 +744,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Shortsword",
+    "name": "Espada Curta",
     "dmgDice": "1d6",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -756,7 +756,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Trident",
+    "name": "Tridente",
     "dmgDice": "1d7",
     "handedness": "Versátil",
     "dmgType": "Cortante",
@@ -769,7 +769,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "dmgDiceVersatile": "1d8"
   },
   {
-    "name": "War pick",
+    "name": "Picareta de Guerra",
     "dmgDice": "1d8",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -778,7 +778,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Warhammer",
+    "name": "Martelo de Guerra",
     "dmgDice": "1d8",
     "handedness": "Versátil",
     "dmgType": "Cortante",
@@ -790,7 +790,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "dmgDiceVersatile": "1d10"
   },
   {
-    "name": "Whip",
+    "name": "Chicote",
     "dmgDice": "1d4",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -802,7 +802,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Blowgun",
+    "name": "Zarabatana",
     "dmgDice": "1",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -840,7 +840,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "À Distância"
   },
   {
-    "name": "Longbow",
+    "name": "Arco Longo",
     "dmgDice": "1d8",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -853,7 +853,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "rangeType": "À Distância"
   },
   {
-    "name": "Net",
+    "name": "Rede",
     "dmgDice": "1d4",
     "handedness": "1 Mão",
     "dmgType": "Cortante",
@@ -1042,7 +1042,7 @@ export const BACKGROUNDS_LIST: BackgroundData[] = [
     featureDesc: 'Você é bem-recebido pela alta sociedade e as pessoas tendem a assumir que você tem o direito de estar onde está.',
   },
   {
-    name: 'Forasteiro (Outlander)',
+    name: 'Forçasteiro (Outlander)',
     skills: ['Atletismo', 'Sobrevivência'],
     featureName: 'Andarilho (Wanderer)',
     featureDesc: 'Você tem memória excelente para mapas e geografia, e consegue achar comida e água fresca para até 6 pessoas por dia.',

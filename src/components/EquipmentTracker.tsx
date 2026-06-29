@@ -4,6 +4,7 @@ import { Alert } from '../utils/alert';
 import { EquipmentItem } from '../types/character';
 import { Ionicons } from '@expo/vector-icons';
 import { MAGIC_ITEMS_LIST, MagicItemTemplate, isProficientInItem, WEAPON_TEMPLATES, AMMUNITION_TEMPLATES } from '../utils/dndRules';
+import { useTheme, ThemeColors } from '../context/ThemeContext';
 
 interface EquipmentTrackerProps {
   equipment: EquipmentItem[];
@@ -33,6 +34,7 @@ export const EquipmentTracker: React.FC<EquipmentTrackerProps> = ({
   onDeleteItem,
   characterClass,
 }) => {
+  const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const [creationMode, setCreationMode] = useState<'custom' | 'magic'>('custom');
   
@@ -70,7 +72,7 @@ export const EquipmentTracker: React.FC<EquipmentTrackerProps> = ({
   };
 
   const getIconColor = (type: EquipmentItem['type'], equipped: boolean) => {
-    if (!equipped) return '#475569';
+    if (!equipped) return colors.textMuted;
     switch (type) {
       case 'weapon':
         return '#EF4444';

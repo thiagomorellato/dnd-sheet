@@ -59,7 +59,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onBack
 }) => {
   const {
-    colors
+    colors,
+    toggleTheme
   } = useTheme();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
   const {
@@ -648,9 +649,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             </Text>
           </View>
         </View>
-        <View style={styles.levelBadgeCircle}>
-          <Text style={styles.levelBadgeNumber}>{character.level}</Text>
-          <Text style={styles.levelBadgeLabel}>NÍVEL</Text>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <TouchableOpacity onPress={toggleTheme} style={{marginRight: 12}}>
+            <Ionicons name={colors.background === '#0F172A' ? "sunny" : "moon"} size={20} color={colors.accentAmber} />
+          </TouchableOpacity>
+          <View style={styles.levelBadgeCircle}>
+            <Text style={styles.levelBadgeNumber}>{character.level}</Text>
+            <Text style={styles.levelBadgeLabel}>NÍVEL</Text>
+          </View>
         </View>
       </View>
 

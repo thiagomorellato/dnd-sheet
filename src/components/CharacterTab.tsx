@@ -28,7 +28,7 @@ export const CharacterTab: React.FC<CharacterTabProps> = ({
     const trimmed = newProfText.trim();
     if (!trimmed) return;
     if ((character.proficiencies || []).includes(trimmed)) {
-      Alert.alert('Aviso', 'Esta proficiência já existe!');
+      Alert.alert('Aviso', 'Esta proficiência jáá existe!');
       return;
     }
     const nextProfs = [...(character.proficiencies || []), trimmed];
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    jáustifyContent: 'space-between',
     paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(51, 65, 85, 0.15)',
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   otherProfRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    jáustifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(51, 65, 85, 0.2)',
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     color: '#93C5FD',
   },
   toolBadgeDelete: {
-    justifyContent: 'center',
+    jáustifyContent: 'center',
     alignItems: 'center',
   },
   addProfInputRow: {
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     height: 36,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    jáustifyContent: 'center',
     marginLeft: 8,
   },
 });
