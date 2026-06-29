@@ -303,9 +303,9 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
                           isProficient && styles.columnSkillItemProficient
                         ]}
                       >
-                        <Text style={[styles.columnSkillBonus, isProficient && styles.columnSkillBonusProficient]}>
-                          {finalBonusStr}
-                        </Text>
+                        <View style={{ marginRight: 4, justifyContent: 'center' }}>
+                          <Ionicons name="ellipse" size={4} color={isProficient ? '#F59E0B' : 'rgba(51, 65, 85, 0.6)'} />
+                        </View>
                         <Text 
                           style={[styles.columnSkillName, isProficient && styles.columnSkillNameProficient]}
                           numberOfLines={1}
