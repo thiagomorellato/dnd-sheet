@@ -48,7 +48,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCharacter, onCre
       ],
     },
     proficiencies: ['Athletics', 'Insight', 'Perception', 'Religion', 'Intimidation'],
-    preparedSpells: ['Shield of Faith', 'Cure Wounds', 'Bless', 'Aid'],
+    preparedSpells: ['Escudo da Fé', 'Curar Ferimentos', 'Abençoar', 'Auxílio'],
     equipment: [
       { id: 'eq-sword-1', name: 'Longsword +1', type: 'weapon', equipped: true, dmgDice: '1d8+4' },
       { id: 'eq-plate-1', name: 'Plate Armor', type: 'armor', equipped: true, acBonus: 18 },

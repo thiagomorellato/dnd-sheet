@@ -73,7 +73,7 @@ export const CharacterSchema = z.object({
   combat: CombatConfigSchema,
   resources: ResourcesSchema,
   proficiencies: z.array(z.string()).default([]),
-  preparedSpells: z.array(z.string()).default(['Shield of Faith', 'Cure Wounds']),
+  preparedSpells: z.array(z.string()).default(['Escudo da Fé', 'Curar Ferimentos']),
   equipment: z.array(EquipmentItemSchema).default([]),
   background: z.string().optional(),
   coins: CoinsSchema.default({ cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 }),
