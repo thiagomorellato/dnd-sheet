@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, LayoutAnimation, Platform, UIManager, Image, Mãodal, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, LayoutAnimation, Platform, UIManager, Image, Modal, TextInput, Alert } from 'react-native';
 import { CombatConfig, BaseStats, EquipmentItem } from '../types/character';
 import { Ionicons } from '@expo/vector-icons';
 import { isProficientInItem } from '../utils/dndRules';
@@ -186,7 +186,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
   const [skillsExpanded, setSkillsExpanded] = useState(false);
   const [newProfText, setNewProfText] = useState('');
   const [activeDetail, setActiveDetail] = useState<string | null>(null);
-  const [avatarMãodalVisible, setAvatarMãodalVisible] = useState(false);
+  const [avatarModalVisible, setAvatarModalVisible] = useState(false);
   const [tempImageUrl, setTempImageUrl] = useState('');
 
 
@@ -257,7 +257,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
     <View style={styles.container}>
       {/* Horizontal Attributes Grid */}
       <View style={styles.horizontalAttributesRow}>
-        {(Objáect.keys(stats) as Array<keyof BaseStats>).map(stat => {
+        {(Object.keys(stats) as Array<keyof BaseStats>).map(stat => {
           const modVal = Math.floor((stats[stat] - 10) / 2);
           const modStr = modVal >= 0 ? `+${modVal}` : `${modVal}`;
 
@@ -283,7 +283,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
       {skillsExpanded && (
         <>
           <View style={styles.skillsColumnsRow}>
-            {(Objáect.keys(stats) as Array<keyof BaseStats>).map(stat => {
+            {(Object.keys(stats) as Array<keyof BaseStats>).map(stat => {
               const skills = SKILL_MAPPING[stat];
 
               return (
@@ -309,7 +309,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
                         <Text 
                           style={[styles.columnSkillName, isProficient && styles.columnSkillNameProficient]}
                           numberOfLines={1}
-                          adjáustsFontSizeToFit
+                          adjustsFontSizeToFit
                           minimumFontScale={0.75}
                         >
                           {skill}
@@ -419,20 +419,20 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
       <View style={styles.modelContainerFull}>
         <View style={styles.modelPlaceholder}>
           {imageUrl ? (
-            <TouchableOpacity onPress={() => setAvatarMãodalVisible(true)} activeOpacity={0.8} style={{ width: '100%', height: '100%', borderRadius: 12, overflow: 'hidden' }}>
-              <Image source={{ uri: imageUrl }} style={{ width: '100%', height: '100%' }} resizeMãode="cover" />
+            <TouchableOpacity onPress={() => setAvatarModalVisible(true)} activeOpacity={0.8} style={{ width: '100%', height: '100%', borderRadius: 12, overflow: 'hidden' }}>
+              <Image source={{ uri: imageUrl }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity onPress={() => setAvatarMãodalVisible(true)} activeOpacity={0.8} style={{ alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => setAvatarModalVisible(true)} activeOpacity={0.8} style={{ alignItems: 'center' }}>
               <Ionicons name="body-outline" size={32} color="rgba(148, 163, 184, 0.25)" />
               <Text style={styles.modelPlaceholderText}>ADICIONAR AVATAR</Text>
               <Text style={styles.modelPlaceholderSub}>Toque para inserir URL da imagem</Text>
             </TouchableOpacity>
           )}
 
-          {/* Avatar URL Mãodal */}
-          <Mãodal visible={avatarMãodalVisible} transparent animationType="fade">
-            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', jáustifyContent: 'center', padding: 20 }}>
+          {/* Avatar URL Modal */}
+          <Modal visible={avatarModalVisible} transparent animationType="fade">
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', padding: 20 }}>
               <View style={{ backgroundColor: '#1c1c1e', borderRadius: 12, padding: 20 }}>
                 <Text style={{ color: '#F8FAFC', fontSize: 16, fontWeight: 'bold', marginBottom: 12 }}>URL do Avatar</Text>
                 <TextInput
@@ -442,14 +442,14 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
                   value={tempImageUrl}
                   onChangeText={setTempImageUrl}
                 />
-                <View style={{ flexDirection: 'row', jáustifyContent: 'flex-end' }}>
-                  <TouchableOpacity onPress={() => setAvatarMãodalVisible(false)} style={{ padding: 12, marginRight: 8 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                  <TouchableOpacity onPress={() => setAvatarModalVisible(false)} style={{ padding: 12, marginRight: 8 }}>
                     <Text style={{ color: '#94A3B8' }}>Cancelar</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                     onPress={() => {
                       if (onUpdateImageUrl) onUpdateImageUrl(tempImageUrl);
-                      setAvatarMãodalVisible(false);
+                      setAvatarModalVisible(false);
                     }} 
                     style={{ padding: 12, backgroundColor: '#F59E0B', borderRadius: 8 }}
                   >
@@ -458,7 +458,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
                 </View>
               </View>
             </View>
-          </Mãodal>
+          </Modal>
 
           {/* Absolute HUD Badges Overlays */}
           <View pointerEvents="box-none" style={styles.hudBadgesRow}>
@@ -475,7 +475,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
 
             </View>
             
-            <View pointerEvents="box-none" style={{ flexDirection: 'row', flexWrap: 'wrap', jáustifyContent: 'flex-end', flex: 1, paddingLeft: 16 }}>
+            <View pointerEvents="box-none" style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', flex: 1, paddingLeft: 16 }}>
               <TouchableOpacity onPress={() => handleShowDetail('init')} activeOpacity={0.7} style={[styles.hudBadge, { marginBottom: 8, marginLeft: 8 }]}>
                 <Ionicons name="flash" size={16} color="#38BDF8" style={{ marginRight: 6 }} />
                 <Text style={styles.hudBadgeValue}>{initiativeStr}</Text>
@@ -500,46 +500,46 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
 
           {/* Vitals Expanded Breakdown */}
           
-          {/* Detail Mãodal */}
-          <Mãodal visible={!!activeDetail} transparent animationType="fade">
+          {/* Detail Modal */}
+          <Modal visible={!!activeDetail} transparent animationType="fade">
             <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={() => setActiveDetail(null)}>
-              <TouchableOpacity activeOpacity={1} style={styles.detailMãodalContent}>
+              <TouchableOpacity activeOpacity={1} style={styles.detailModalContent}>
                 {activeDetail === 'ca' && (
                   <>
-                    <Text style={styles.detailMãodalTitle}>Classe de Armadura</Text>
-                    <Text style={styles.detailMãodalText}>{combat.baseArmorClass} (Base/Equipamentos) {combat.shieldOfFaithActive ? '+ 2 (Escudo da Fé)' : ''}</Text>
-                    <Text style={styles.detailMãodalText}>Total: {currentAC}</Text>
+                    <Text style={styles.detailModalTitle}>Classe de Armadura</Text>
+                    <Text style={styles.detailModalText}>{combat.baseArmorClass} (Base/Equipamentos) {combat.shieldOfFaithActive ? '+ 2 (Escudo da Fé)' : ''}</Text>
+                    <Text style={styles.detailModalText}>Total: {currentAC}</Text>
                   </>
                 )}
                 {activeDetail === 'init' && (
                   <>
-                    <Text style={styles.detailMãodalTitle}>Iniciativa</Text>
-                    <Text style={styles.detailMãodalText}>{dexMãod >= 0 ? `+${dexMãod}` : dexMãod} (Mãodificador de Destreza)</Text>
+                    <Text style={styles.detailModalTitle}>Iniciativa</Text>
+                    <Text style={styles.detailModalText}>{dexMãod >= 0 ? `+${dexMãod}` : dexMãod} (Mãodificador de Destreza)</Text>
                   </>
                 )}
                 {activeDetail === 'speed' && (
                   <>
-                    <Text style={styles.detailMãodalTitle}>Deslocamento</Text>
-                    <Text style={styles.detailMãodalText}>9m (Base)</Text>
+                    <Text style={styles.detailModalTitle}>Deslocamento</Text>
+                    <Text style={styles.detailModalText}>9m (Base)</Text>
                   </>
                 )}
                 {activeDetail === 'perception' && (
                   <>
-                    <Text style={styles.detailMãodalTitle}>Percepção Passiva</Text>
-                    <Text style={styles.detailMãodalText}>10 + {wisMãod} (Sabedoria) = {passivePerception}</Text>
+                    <Text style={styles.detailModalTitle}>Percepção Passiva</Text>
+                    <Text style={styles.detailModalText}>10 + {wisMãod} (Sabedoria) = {passivePerception}</Text>
                   </>
                 )}
                 {activeDetail === 'weight' && (
                   <>
-                    <Text style={styles.detailMãodalTitle}>Peso do Equipamento</Text>
-                    <Text style={styles.detailMãodalText}>Atual: {totalWeight.toFixed(1)} lb</Text>
-                    <Text style={styles.detailMãodalText}>Máximo: {maxWeight} lb ({stats.str} * 15)</Text>
-                    {isOverweight && <Text style={[styles.detailMãodalText, { color: '#EF4444', marginTop: 8 }]}>Você está sobrecarregado! Seu deslocamento cai em 3m.</Text>}
+                    <Text style={styles.detailModalTitle}>Peso do Equipamento</Text>
+                    <Text style={styles.detailModalText}>Atual: {totalWeight.toFixed(1)} lb</Text>
+                    <Text style={styles.detailModalText}>Máximo: {maxWeight} lb ({stats.str} * 15)</Text>
+                    {isOverweight && <Text style={[styles.detailModalText, { color: '#EF4444', marginTop: 8 }]}>Você está sobrecarregado! Seu deslocamento cai em 3m.</Text>}
                   </>
                 )}
                 {activeDetail === 'prof' && (
                   <View style={{ width: '100%' }}>
-                    <Text style={styles.detailMãodalTitle}>Proficiências e Treinamentos</Text>
+                    <Text style={styles.detailModalTitle}>Proficiências e Treinamentos</Text>
                     <View style={styles.otherProfRow}>
                       <View style={styles.otherProfRowLeft}>
                         <Ionicons name="shield-half-outline" size={13} color="#60A5FA" style={{ marginRight: 6 }} />
@@ -565,7 +565,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
                 )}
               </TouchableOpacity>
             </TouchableOpacity>
-          </Mãodal>
+          </Modal>
 
 
 
@@ -666,11 +666,11 @@ const styles = StyleSheet.create({
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    jáustifyContent: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  detailMãodalContent: {
+  detailModalContent: {
     backgroundColor: 'rgba(30, 41, 59, 0.95)',
     borderWidth: 1,
     borderColor: 'rgba(56, 189, 248, 0.3)',
@@ -685,14 +685,14 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 10,
   },
-  detailMãodalTitle: {
+  detailModalTitle: {
     color: '#F8FAFC',
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 12,
     textAlign: 'center',
   },
-  detailMãodalText: {
+  detailModalText: {
     color: '#94A3B8',
     fontSize: 14,
     marginBottom: 4,
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
   },
   horizontalAttributesRow: {
     flexDirection: 'row',
-    jáustifyContent: 'space-between',
+    justifyContent: 'space-between',
     width: '100%',
     marginBottom: 6,
   },
@@ -742,7 +742,7 @@ const styles = StyleSheet.create({
   },
   skillsColumnsRow: {
     flexDirection: 'row',
-    jáustifyContent: 'space-between',
+    justifyContent: 'space-between',
     width: '100%',
     marginBottom: 10,
   },
@@ -754,7 +754,7 @@ const styles = StyleSheet.create({
   },
   columnSkillItem: {
     alignItems: 'center',
-    jáustifyContent: 'center',
+    justifyContent: 'center',
     backgroundColor: 'rgba(30, 41, 59, 0.5)',
     borderRadius: 6,
     borderWidth: 0.5,
@@ -801,7 +801,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: 'rgba(15, 23, 42, 0.35)',
     alignItems: 'center',
-    jáustifyContent: 'center',
+    justifyContent: 'center',
     padding: 8,
     minHeight: 180,
     position: 'relative',
@@ -826,13 +826,13 @@ const styles = StyleSheet.create({
     left: 8,
     right: 8,
     flexDirection: 'row',
-    jáustifyContent: 'space-between',
+    justifyContent: 'space-between',
     zIndex: 10,
   },
   hudBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    jáustifyContent: 'center',
+    justifyContent: 'center',
     backgroundColor: 'rgba(15, 23, 42, 0.85)',
     borderColor: '#334155',
     borderWidth: 1,
@@ -931,7 +931,7 @@ const styles = StyleSheet.create({
   weaponHudHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    jáustifyContent: 'space-between',
+    justifyContent: 'space-between',
   },
   weaponIconWrapper: {
     marginRight: 6,
@@ -1094,7 +1094,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     width: 32,
     height: 32,
-    jáustifyContent: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 6,
   },

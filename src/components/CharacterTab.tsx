@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     flexDirection: 'row',
-    jáustifyContent: 'space-between',
+    justifyContent: 'space-between',
     paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(51, 65, 85, 0.15)',
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   otherProfRow: {
     flexDirection: 'row',
-    jáustifyContent: 'space-between',
+    justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(51, 65, 85, 0.2)',
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     color: '#93C5FD',
   },
   toolBadgeDelete: {
-    jáustifyContent: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   addProfInputRow: {
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     height: 36,
     flexDirection: 'row',
     alignItems: 'center',
-    jáustifyContent: 'center',
+    justifyContent: 'center',
     marginLeft: 8,
   },
 });

@@ -72,7 +72,7 @@ export const AttributesGrid: React.FC<AttributesGridProps> = ({
                   stat === 'con' ? 'CON' :
                   stat === 'int' ? 'INT' :
                   stat === 'wis' ? 'SAB' :
-                  stat === 'cha' ? 'CAR' : stat.toUpperCase()
+                  stat === 'cha' ? 'CAR' : (stat as string).toUpperCase()
                 }</Text>
                 <Text style={styles.modText}>{getModifierStr(stats[stat])}</Text>
                 <Text style={styles.scoreText}>{stats[stat]}</Text>
