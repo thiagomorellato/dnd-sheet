@@ -18,6 +18,7 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 import { HomeScreen } from './src/screens/HomeScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { CharacterCreationScreen } from './src/screens/CharacterCreationScreen';
+import { ThemeProvider } from './src/context/ThemeContext';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<'home' | 'dashboard' | 'create'>('home');
@@ -51,22 +52,24 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      {currentScreen === 'home' ? (
-        <HomeScreen 
-          onSelectCharacter={handleSelectCharacter} 
-          onCreateCharacter={() => setCurrentScreen('create')} 
-        />
-      ) : currentScreen === 'create' ? (
-        <CharacterCreationScreen 
-          onBack={handleBackToHome} 
-          onSuccess={handleBackToHome} 
-        />
-      ) : (
-        <DashboardScreen characterId={selectedCharacterId!} onBack={handleBackToHome} />
-      )}
-    </View>
+    <ThemeProvider>
+      <View style={styles.container}>
+        <StatusBar style="light" />
+        {currentScreen === 'home' ? (
+          <HomeScreen 
+            onSelectCharacter={handleSelectCharacter} 
+            onCreateCharacter={() => setCurrentScreen('create')} 
+          />
+        ) : currentScreen === 'create' ? (
+          <CharacterCreationScreen 
+            onBack={handleBackToHome} 
+            onSuccess={handleBackToHome} 
+          />
+        ) : (
+          <DashboardScreen characterId={selectedCharacterId!} onBack={handleBackToHome} />
+        )}
+      </View>
+    </ThemeProvider>
   );
 }
 
