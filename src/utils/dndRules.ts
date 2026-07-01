@@ -969,16 +969,47 @@ export const ARMOR_TEMPLATES: ArmorTemplate[] = [
 ];
 
 export function getSpellSlotsForClass(className: string, level: number): Record<string, { current: number, max: number }> {
-  const cls = CLASSES_LIST.find(c => c.name === className);
-  if (!cls) return {};
-  
-  const slotsAtLevel = cls.defaultSlots[level] || cls.defaultSlots[Object.keys(cls.defaultSlots).length] || {};
-  
+  // 1. Definição da progressão de slots (tabela oficial D&D 5e)
+  const progressions: Record<string, any> = {
+    'full': { // Magos, Clérigos, Druidas, Feiticeiros, Bardos
+      1: {L1: 2}, 2: {L1: 3}, 3: {L1: 4, L2: 2}, 4: {L1: 4, L2: 3}, 
+      5: {L1: 4, L2: 3, L3: 2}, 6: {L1: 4, L2: 3, L3: 3}, 7: {L1: 4, L2: 3, L3: 3, L4: 1},
+      8: {L1: 4, L2: 3, L3: 3, L4: 2}, 9: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 1},
+      10: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2}, 11: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2, L6: 1},
+      12: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2, L6: 1}, 13: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2, L6: 1, L7: 1},
+      14: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2, L6: 1, L7: 1}, 15: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2, L6: 1, L7: 1, L8: 1},
+      16: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2, L6: 1, L7: 1, L8: 1}, 17: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2, L6: 1, L7: 1, L8: 1, L9: 1},
+      18: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 3, L6: 1, L7: 1, L8: 1, L9: 1}, 19: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 3, L6: 2, L7: 1, L8: 1, L9: 1},
+      20: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 3, L6: 2, L7: 2, L8: 1, L9: 1}
+    },
+    'half': { // Paladinos e Patrulheiros
+      2: {L1: 2}, 3: {L1: 3}, 4: {L1: 3}, 5: {L1: 4, L2: 2}, 6: {L1: 4, L2: 2},
+      7: {L1: 4, L2: 3}, 8: {L1: 4, L2: 3}, 9: {L1: 4, L2: 3, L3: 2}, 10: {L1: 4, L2: 3, L3: 2},
+      11: {L1: 4, L2: 3, L3: 3}, 12: {L1: 4, L2: 3, L3: 3}, 13: {L1: 4, L2: 3, L3: 3, L4: 1},
+      14: {L1: 4, L2: 3, L3: 3, L4: 1}, 15: {L1: 4, L2: 3, L3: 3, L4: 2}, 16: {L1: 4, L2: 3, L3: 3, L4: 2},
+      17: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 1}, 18: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 1},
+      19: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2}, 20: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2}
+    }
+  };
+
+  // 2. Determinar o tipo de caster
+  const n = className.toLowerCase();
+  let type = 'none';
+  if (['mago', 'wizard', 'clérigo', 'cleric', 'druida', 'druid', 'bardo', 'bard', 'feiticeiro', 'sorcerer'].some(c => n.includes(c))) type = 'full';
+  else if (['paladino', 'paladin', 'patrulheiro', 'ranger', 'artífice', 'artificer'].some(c => n.includes(c))) type = 'half';
+
+  if (type === 'none') return {};
+
+  // 3. Montar o retorno (CORRIGIDO PARA USAR O PADRÃO 'L1', 'L2')
+  const slots = progressions[type][level] || {};
   const result: Record<string, { current: number, max: number }> = {};
-  Object.entries(slotsAtLevel).forEach(([lvl, slot]) => {
-    result[lvl] = { current: slot.max, max: slot.max };
-  });
   
+  Object.entries(slots).forEach(([lvl, max]: any) => {
+    // Aqui garantimos que a chave seja exatamente 'L1', 'L2', etc.
+    // Se o 'lvl' já for 'L1', ele mantém. Se for '1', ele vira 'L1'.
+    const key = lvl.startsWith('L') ? lvl : `L${lvl}`;
+    result[key] = { current: max, max: max };
+  });
   return result;
 }
 

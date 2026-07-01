@@ -15,6 +15,7 @@ import { RestModal } from '../components/RestModal';
 import { StatusConditions } from '../components/StatusConditions';
 import { Ionicons } from '@expo/vector-icons';
 import { getHitDieType, getArmorCategory, getSpellSlotsForClass, XP_THRESHOLDS } from '../utils/dndRules';
+import Svg, { Circle } from 'react-native-svg';
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -78,7 +79,68 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('tatico');
   const [restModalVisible, setRestModalVisible] = useState(false);
-  const [addXpModalVisible, setAddXpModalVisible] = useState(false);
+  const [xpDetailsModalVisible, setXpDetailsModalVisible] = useState(false);
+  const promptCastSpell = (spellName: string) => {
+    if (!character) return;
+
+    // Filtra apenas os slots que são maiores que zero
+    const availableSlots = Object.entries(character.resources.spellSlots)
+      .filter(([_, slotData]) => slotData.current > 0)
+      .map(([level, _]) => ({
+        text: `Slot Nível ${level.replace('level', '')}`,
+        onPress: () => executeCastSpell(spellName, level)
+      }));
+
+    if (availableSlots.length === 0) {
+      Alert.alert('Sem Magia!', 'Você não tem mais espaços de magia disponíveis.');
+      return;
+    }
+
+    Alert.alert(
+      `Lançar ${spellName}`,
+      'Gastar qual espaço de magia?',
+      [...availableSlots, { text: 'Cancelar', style: 'cancel' }]
+    );
+  };
+
+  // Função que realmente desconta o slot e salva
+  const executeCastSpell = async (spellName: string, slotLevel: string) => {
+    if (!character) return;
+    setIsSaving(true);
+    
+    try {
+      const updatedSlots = { ...character.resources.spellSlots };
+      if (updatedSlots[slotLevel] && updatedSlots[slotLevel].current > 0) {
+        updatedSlots[slotLevel] = {
+          ...updatedSlots[slotLevel],
+          current: updatedSlots[slotLevel].current - 1
+        };
+      }
+
+      const updatedChar = {
+        ...character,
+        resources: { ...character.resources, spellSlots: updatedSlots }
+      };
+
+      await StorageService.saveCharacter(updatedChar);
+      setCharacter(updatedChar);
+
+      const totalAC = character.combat.baseArmorClass + (character.combat.shieldOfFaithActive ? 2 : 0);
+      await LoggerService.logEvent(
+        character.id,
+        'RESOURCE_USE',
+        `✨ Lançou magia: ${spellName} (Usou slot Nível ${slotLevel.replace('level', '')})`,
+        getHpSummary(character.hp, totalAC)
+      );
+      
+      const logList = await LoggerService.getLogs(character.id);
+      setLogs(logList);
+    } catch (e: any) {
+      Alert.alert('Erro ao lançar magia', e.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
   const [xpInputValue, setXpInputValue] = useState('');
   const loadData = async () => {
     try {
@@ -766,6 +828,24 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const parts = character.characterClass.split(' (');
   const className = parts[0];
   const subclass = parts[1] ? parts[1].replace(')', '') : '';
+
+  // --- CÁLCULO DE XP ---
+  const currentXP = character.xp ?? 0;
+  const level = character.level;
+  const nextLevelXP = XP_THRESHOLDS[level + 1];
+  const currentLevelXP = XP_THRESHOLDS[level] ?? 0;
+  
+  let progress = 1;
+  if (nextLevelXP) {
+    const xpNeeded = nextLevelXP - currentLevelXP;
+    const xpEarned = currentXP - currentLevelXP;
+    progress = Math.max(0, Math.min(1, xpEarned / xpNeeded));
+  }
+  const canLevelUp = nextLevelXP !== undefined && currentXP >= nextLevelXP;
+  // ---------------------
+  const totalCurrentSlots = character.resources?.spellSlots ? Object.values(character.resources.spellSlots).reduce((acc, slot) => acc + (slot.current || 0), 0) : 0;
+  const totalMaxSlots = character.resources?.spellSlots ? Object.values(character.resources.spellSlots).reduce((acc, slot) => acc + (slot.max || 0), 0) : 0;
+
   return <ImageBackground source={getCharacterBackground(character.characterClass, isMobile)} style={styles.container} imageStyle={styles.bgImageStyles} resizeMode="cover">
       <View style={styles.overlay}>
       {/* Header */}
@@ -799,89 +879,73 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           <TouchableOpacity onPress={() => setRestModalVisible(true)} style={{marginRight: 12}}>
             <Ionicons name="moon-outline" size={20} color={colors.textMuted} />
           </TouchableOpacity>
-          <View style={styles.levelBadgeCircle}>
-            <Text style={styles.levelBadgeNumber}>{character.level}</Text>
-            <Text style={styles.levelBadgeLabel}>NÍVEL</Text>
-          </View>
+          <TouchableOpacity onPress={() => { setXpInputValue(''); setXpDetailsModalVisible(true); }} style={styles.levelBadgeContainer}>
+            <Svg width="44" height="44" style={{ position: 'absolute' }}>
+              <Circle
+                stroke={colors.surfaceSecondary}
+                fill="none"
+                cx="22"
+                cy="22"
+                r="19"
+                strokeWidth="3"
+              />
+              <Circle
+                stroke="#F59E0B"
+                fill="none"
+                cx="22"
+                cy="22"
+                r="19"
+                strokeWidth="3"
+                strokeDasharray={2 * Math.PI * 19}
+                strokeDashoffset={(2 * Math.PI * 19) * (1 - progress)}
+                strokeLinecap="round"
+                transform="rotate(-90 22 22)"
+              />
+            </Svg>
+            <View style={styles.levelBadgeInner}>
+              <Text style={styles.levelBadgeNumber}>{character.level}</Text>
+              <Text style={styles.levelBadgeLabel}>NÍVEL</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
 
       {/* Main Content Area */}
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+<ScrollView contentContainerStyle={styles.scrollContent}>
         {activeTab === 'tatico' && <>
-          <VitalsWidget combat={character.combat} stats={character.baseStats} proficiencies={character.proficiencies} level={character.level} equipment={character.equipment} characterClass={character.characterClass} coins={character.coins} imageUrl={character.imageUrl} onUpdateImageUrl={async (url) => {
-            if (character) {
-              const updatedChar = { ...character, imageUrl: url };
-              try {
-                await StorageService.saveCharacter(updatedChar);
-                setCharacter(updatedChar);
-              } catch (err) {}
-            }
-          }} onUpdateProficiencies={handleUpdateProficiencies} onUpdateEquipment={async updatedEq => {
-            if (character) {
-              const updatedChar = { ...character, equipment: updatedEq };
-              try {
-                await StorageService.saveCharacter(updatedChar);
-                setCharacter(updatedChar);
-              } catch (err) { console.error('Error saving ammo:', err); }
-            }
-          }} />
-
-          {/* XP Widget */}
-          {(() => {
-            const currentXP = character.xp ?? 0;
-            const level = character.level;
-            const nextLevelXP = XP_THRESHOLDS[level + 1];
-            const currentLevelXP = XP_THRESHOLDS[level] ?? 0;
-            const progress = nextLevelXP
-              ? Math.min(1, (currentXP - currentLevelXP) / (nextLevelXP - currentLevelXP))
-              : 1;
-            const canLevelUp = nextLevelXP !== undefined && currentXP >= nextLevelXP;
-            return (
-              <View style={[styles.xpCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <View style={styles.xpHeader}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Ionicons name="star" size={14} color="#F59E0B" />
-                    <Text style={[styles.xpTitle, { color: colors.textMuted }]}>EXPERIÊNCIA</Text>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Text style={[styles.xpValue, { color: colors.textMain }]}>{currentXP.toLocaleString('pt-BR')} XP</Text>
-                    <TouchableOpacity
-                      style={[styles.addXpBtn, { backgroundColor: colors.surfaceHighlight, borderColor: colors.border }]}
-                      onPress={() => { setXpInputValue(''); setAddXpModalVisible(true); }}
-                    >
-                      <Ionicons name="add" size={14} color="#F59E0B" />
-                      <Text style={[styles.addXpText, { color: '#F59E0B' }]}>+XP</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                <View style={[styles.xpBarBg, { backgroundColor: colors.surfaceSecondary }]}>
-                  <View style={[styles.xpBarFill, { width: `${progress * 100}%` as any }]} />
-                </View>
-                <View style={styles.xpFooter}>
-                  <Text style={[styles.xpNextLabel, { color: colors.textMuted }]}>
-                    {nextLevelXP
-                      ? `Para Nível ${level + 1}: ${nextLevelXP.toLocaleString('pt-BR')} XP`
-                      : 'Nível máximo atingido!'}
-                  </Text>
-                  {canLevelUp && (
-                    <TouchableOpacity
-                      style={[styles.levelUpBtn, { backgroundColor: '#F59E0B' }]}
-                      onPress={handleLevelUp}
-                    >
-                      <Ionicons name="arrow-up-circle" size={14} color="#000" style={{ marginRight: 4 }} />
-                      <Text style={styles.levelUpBtnText}>Nível {level + 1}!</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            );
-          })()}
-
-          <SpellbookWidget
-            preparedSpells={character.preparedSpells}
-            spellSlots={character.resources.spellSlots}
-          />
+          
+          <VitalsWidget
+              combat={character.combat}
+              stats={character.baseStats}
+              proficiencies={character.proficiencies}
+              level={character.level}
+              equipment={character.equipment}
+              characterClass={character.characterClass}
+              coins={character.coins}
+              imageUrl={character.imageUrl}
+              preparedSpells={character.preparedSpells}
+              spellSlots={character.resources.spellSlots}
+              onCastSpell={promptCastSpell}
+              onUpdateImageUrl={async (url) => {
+                if (character) {
+                  const updatedChar = { ...character, imageUrl: url };
+                  try {
+                    await StorageService.saveCharacter(updatedChar);
+                    setCharacter(updatedChar);
+                  } catch (err) {}
+                }
+              }}
+              onUpdateProficiencies={handleUpdateProficiencies}
+              onUpdateEquipment={async updatedEq => {
+                if (character) {
+                  const updatedChar = { ...character, equipment: updatedEq };
+                  try {
+                    await StorageService.saveCharacter(updatedChar);
+                    setCharacter(updatedChar);
+                  } catch (err) { console.error('Error saving ammo:', err); }
+                }
+              }}
+            />
 
           <StatusConditions
             conditions={character.conditions ?? []}
@@ -891,7 +955,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
         {activeTab === 'personagem' && <CharacterTab character={character} onUpdateProficiencies={handleUpdateProficiencies} />}
 
-        {activeTab === 'magias' && <ResourceTracker resources={character.resources} preparedSpells={character.preparedSpells} onUpdateResources={handleUpdateResources} onUpdatePreparedSpells={handleUpdatePreparedSpells} combat={character.combat} onUpdateCombat={handleUpdateCombat} hp={character.hp} onUpdateHP={handleUpdateHP} onLogAction={handleLogAction} hpSummary={getHpSummary(character.hp, character.combat.baseArmorClass + (character.combat.shieldOfFaithActive ? 2 : 0))} characterClass={character.characterClass} level={character.level} stats={character.baseStats} />}
+        {activeTab === 'magias' && <ResourceTracker resources={character.resources} preparedSpells={character.preparedSpells} onUpdateResources={handleUpdateResources} onUpdatePreparedSpells={handleUpdatePreparedSpells} combat={character.combat} onUpdateCombat={handleUpdateCombat} hp={character.hp} onUpdateHP={handleUpdateHP} onLogAction={handleLogAction} hpSummary={getHpSummary(character.hp, character.combat.baseArmorClass + (character.combat.shieldOfFaithActive ? 2 : 0))} characterClass={character.characterClass} level={character.level} stats={character.baseStats} key={JSON.stringify(character.resources.spellSlots)} />}
 
         {activeTab === 'equipamentos' && <EquipmentTracker equipment={character.equipment} onToggleEquip={handleToggleEquip} onAddItem={handleAddItem} onDeleteItem={handleDeleteItem} characterClass={character.characterClass} />}
 
@@ -1105,48 +1169,84 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         onShortRest={handleShortRest}
         onLongRest={handleLongRest}
       />
-      {/* Add XP Modal */}
-      <Modal animationType="fade" transparent visible={addXpModalVisible} onRequestClose={() => setAddXpModalVisible(false)}>
+      {/* Detalhes de XP e Nível Modal */}
+      <Modal animationType="fade" transparent visible={xpDetailsModalVisible} onRequestClose={() => setXpDetailsModalVisible(false)}>
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { maxHeight: 220 }]}>
+          <View style={[styles.modalContent, { maxHeight: 'auto', width: '90%' }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Adicionar XP</Text>
-              <TouchableOpacity onPress={() => setAddXpModalVisible(false)}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Ionicons name="star" size={18} color="#F59E0B" />
+                <Text style={styles.modalTitle}>Experiência (XP)</Text>
+              </View>
+              <TouchableOpacity onPress={() => setXpDetailsModalVisible(false)}>
                 <Ionicons name="close" size={22} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
-            <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: 12 }}>
-              Quantos pontos de experiência ganhos?
-            </Text>
-            <TextInput
-              style={[styles.coinTextInput, { marginBottom: 16, fontSize: 20, fontWeight: '800' }]}
-              keyboardType="numeric"
-              value={xpInputValue}
-              onChangeText={setXpInputValue}
-              placeholder="Ex: 450"
-              placeholderTextColor={colors.textMuted}
-              autoFocus
-            />
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
-              <TouchableOpacity onPress={() => setAddXpModalVisible(false)} style={{ paddingVertical: 10, paddingHorizontal: 16 }}>
-                <Text style={{ color: colors.textMuted, fontWeight: '700' }}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  const amount = parseInt(xpInputValue, 10);
-                  if (!isNaN(amount) && amount > 0) {
-                    handleAddXP(amount);
-                    setAddXpModalVisible(false);
-                  }
-                }}
-                style={{ backgroundColor: '#F59E0B', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 20 }}
-              >
-                <Text style={{ color: '#000', fontWeight: '800' }}>Confirmar</Text>
-              </TouchableOpacity>
+            
+            {/* Infos Atuais */}
+            <View style={{ marginBottom: 16 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 6 }}>
+                <Text style={{ color: colors.textMain, fontSize: 16, fontWeight: '800' }}>Nível {level}</Text>
+                <Text style={{ color: colors.textMuted, fontSize: 13, fontWeight: '600' }}>
+                  {currentXP.toLocaleString('pt-BR')} / {nextLevelXP ? nextLevelXP.toLocaleString('pt-BR') : 'Máx'} XP
+                </Text>
+              </View>
+              <View style={[styles.xpBarBg, { backgroundColor: colors.surfaceSecondary, marginBottom: 4 }]}>
+                <View style={[styles.xpBarFill, { width: `${progress * 100}%` as any }]} />
+              </View>
+              <Text style={{ color: colors.textMuted, fontSize: 11, textAlign: 'right' }}>
+                {nextLevelXP 
+                  ? `Faltam ${(nextLevelXP - currentXP).toLocaleString('pt-BR')} XP para o Nível ${level + 1}`
+                  : 'Nível máximo alcançado!'}
+              </Text>
             </View>
+
+            {/* Ação: Subir de Nível ou Adicionar XP */}
+            {canLevelUp ? (
+              <TouchableOpacity
+                style={[styles.levelUpBtn, { backgroundColor: '#F59E0B', paddingVertical: 12, justifyContent: 'center', marginTop: 8 }]}
+                onPress={() => {
+                  handleLevelUp();
+                  setXpDetailsModalVisible(false);
+                }}
+              >
+                <Ionicons name="arrow-up-circle" size={18} color="#000" style={{ marginRight: 6 }} />
+                <Text style={[styles.levelUpBtnText, { fontSize: 14 }]}>Subir para Nível {level + 1}!</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={{ marginTop: 8 }}>
+                <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: 8, fontWeight: '600' }}>
+                  Adicionar XP Ganho:
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <TextInput
+                    style={[styles.coinTextInput, { flex: 1, height: 42, fontSize: 18, fontWeight: '800' }]}
+                    keyboardType="numeric"
+                    value={xpInputValue}
+                    onChangeText={setXpInputValue}
+                    placeholder="Ex: 450"
+                    placeholderTextColor={colors.borderHighlight}
+                  />
+                  <TouchableOpacity
+                    onPress={() => {
+                      const amount = parseInt(xpInputValue, 10);
+                      if (!isNaN(amount) && amount > 0) {
+                        handleAddXP(amount);
+                        setXpDetailsModalVisible(false);
+                      }
+                    }}
+                    style={{ backgroundColor: '#F59E0B', borderRadius: 8, paddingVertical: 12, paddingHorizontal: 20 }}
+                  >
+                    <Text style={{ color: '#000', fontWeight: '800' }}>Adicionar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
           </View>
         </View>
       </Modal>
+
+
       {/* Coins Editing Modal */}
 
       <Modal animationType="slide" transparent={true} visible={coinsModalVisible} onRequestClose={() => setCoinsModalVisible(false)}>
@@ -1319,15 +1419,19 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 20,
     fontWeight: '900'
   },
-  levelBadgeCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: colors.surfaceSecondary,
-    borderColor: colors.accentAmber,
-    borderWidth: 1.5,
+  levelBadgeContainer: {
+    width: 44,
+    height: 44,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+  },
+  levelBadgeInner: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surfaceSecondary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   levelBadgeNumber: {
     color: colors.textMain,
@@ -1722,40 +1826,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 14,
     fontWeight: '800'
   },
-  xpCard: {
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: 12,
-    marginBottom: 16,
-  },
-  xpHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  xpTitle: {
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  xpValue: {
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  addXpBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 6,
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    gap: 2,
-  },
-  addXpText: {
-    fontSize: 10,
-    fontWeight: '800',
-  },
   xpBarBg: {
     height: 6,
     borderRadius: 3,
@@ -1788,5 +1858,39 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 10,
     fontWeight: '800',
     color: '#000',
+  },
+  actionCard: {
+    width: 72,
+    height: 72,
+    borderRadius: 12,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  actionCardText: {
+    fontSize: 10,
+    fontWeight: '800',
+    marginTop: 6,
+  },
+  spellItemBtn: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 8,
+  borderWidth: 1,
+  gap: 6,
+  margin: 4, // Espaçamento entre os botões
+  minWidth: '45%', // Isso forçará até 2 por linha. Se quiser 3, use '30%'
+  },
+  spellItemText: {
+    fontSize: 12, // Fonte um pouco menor
+    fontWeight: '700',
+    flex: 1,
   }
 });

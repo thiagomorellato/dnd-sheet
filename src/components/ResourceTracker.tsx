@@ -293,7 +293,7 @@ export const ResourceTracker: React.FC<ResourceTrackerProps> = ({
           <Text style={styles.sectionTitle}>ESPAÇOS DE MAGIA (SLOTS)</Text>
           {Object.keys(resources.spellSlots).length === 0 ? <Text style={styles.emptySpellsText}>Não há espaços de magia disponíveis neste nível.</Text> : Object.entries(resources.spellSlots).map(([levelKey, slot]) => <View key={levelKey} style={styles.slotRow}>
                 <View>
-                  <Text style={styles.slotName}>Nível {levelKey.replace('L', '')}</Text>
+                  <Text style={styles.slotName}>Nível {levelKey.replace('level', '').replace('L', '')}</Text>
                   <Text style={styles.slotSub}>{slot.current} / {slot.max} restantes</Text>
                 </View>
                 <View style={styles.slotControls}>
@@ -342,6 +342,7 @@ export const ResourceTracker: React.FC<ResourceTrackerProps> = ({
             <View style={styles.searchContainer}>
               <Ionicons name="search" size={16} color={colors.textMuted} style={{ marginRight: 8 }} />
               <TextInput
+                id="spell-search-input"
                 style={styles.searchInput}
                 placeholder="Buscar magia por nome..."
                 placeholderTextColor={colors.textMuted}

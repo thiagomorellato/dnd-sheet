@@ -37,6 +37,9 @@ interface VitalsWidgetProps {
   coins?: any;
   imageUrl?: string;
   onUpdateImageUrl?: (url: string) => void;
+  preparedSpells?: string[];
+  spellSlots?: Record<string, { current: number; max: number }>;
+  onCastSpell?: (spellName: string) => void;
 }
 
 export const SKILL_MAPPING: Record<keyof BaseStats, string[]> = {
@@ -200,13 +203,17 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
   onUpdateEquipment,
   coins,
   imageUrl,
-  onUpdateImageUrl
+  onUpdateImageUrl,
+  preparedSpells = [],
+  spellSlots = {},
+  onCastSpell,
 }) => {
   const [skillsExpanded, setSkillsExpanded] = useState(false);
   const [newProfText, setNewProfText] = useState('');
   const [activeDetail, setActiveDetail] = useState<string | null>(null);
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
   const [tempImageUrl, setTempImageUrl] = useState('');
+  const [spellbookVisible, setSpellbookVisible] = useState(false);
   const { colors } = useTheme();
   const styles = useStyles(colors);
 
@@ -607,6 +614,44 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
             </View>
           </Modal>
 
+          <Modal visible={spellbookVisible} transparent animationType="fade">
+            <TouchableOpacity 
+              style={styles.modalBackdrop} 
+              activeOpacity={1} 
+              onPress={() => setSpellbookVisible(false)}
+            >
+              <TouchableOpacity activeOpacity={1} style={styles.detailModalContent}>
+                <Text style={styles.detailModalTitle}>Grimório</Text>
+                
+                <View style={styles.spellContainer}>
+                  {preparedSpells.length > 0 ? (
+                    preparedSpells.map((spell, index) => (
+                      <TouchableOpacity 
+                        key={index} 
+                        style={styles.spellBox}
+                        onPress={() => {
+                          onCastSpell?.(spell); // Executa a magia
+                          setSpellbookVisible(false); // Fecha o modal
+                        }}
+                      >
+                        <Text style={styles.spellBoxText}>{spell}</Text>
+                      </TouchableOpacity>
+                    ))
+                  ) : (
+                    <Text style={styles.detailModalText}>Nenhuma magia preparada.</Text>
+                  )}
+                </View>
+
+                <TouchableOpacity 
+                  onPress={() => setSpellbookVisible(false)} 
+                  style={{ marginTop: 20, padding: 8 }}
+                >
+                  <Text style={{ color: colors.textMuted }}>Fechar</Text>
+                </TouchableOpacity>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </Modal>
+
           {/* Absolute HUD Badges Overlays */}
           <View pointerEvents="box-none" style={styles.hudBadgesRow}>
             <View pointerEvents="box-none" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
@@ -642,9 +687,69 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
                 <Ionicons name="scale-outline" size={16} color={isOverweight ? colors.accentRed : colors.accentAmber} style={{ marginRight: 6 }} />
                 <Text style={[styles.hudBadgeValue, { color: isOverweight ? colors.accentRed : colors.textMain }]}>{totalWeight.toFixed(1)} / {maxWeight} lb</Text>
               </TouchableOpacity>
+              
+            </View>
+            
+          </View>
+        {/* 2. Container Inferior: Grimório e Armas (Posicionado Absolutamente no Bottom) */}
+          <View pointerEvents="box-none" style={{ position: 'absolute', bottom: 6, left: 6, right: 6, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            
+            {/* Grimório (Esquerda) */}
+            <View>
+              {(() => {
+                const totalCurrentSlots = Object.values(spellSlots).reduce((a, s) => a + (s.current || 0), 0);
+                const totalMaxSlots = Object.values(spellSlots).reduce((a, s) => a + (s.max || 0), 0);
+                if (totalMaxSlots === 0 && preparedSpells.length === 0) return null;
+                return (
+                  <TouchableOpacity style={styles.spellbookBtn} onPress={() => setSpellbookVisible(true)} activeOpacity={0.75}>
+                    <Ionicons name="book" size={18} color={colors.textMain} />
+                    <View style={{ marginLeft: 6 }}>
+                      <Text style={styles.spellbookBtnSlots}>{totalCurrentSlots}/{totalMaxSlots} slots</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })()}
+            </View>
+
+            {/* Armas (Direita) */}
+            <View style={{ alignItems: 'flex-end' }}>
+              {(() => {
+                const equippedWeapons = equipment.filter(i => i.type === 'weapon' && i.equipped);
+                const ammos = equipment.filter(e => e.type === 'ammunition');
+                return (
+                  <>
+                    {equippedWeapons.map(item => {
+                      const isProficient = isProficientInItem(characterClass, 'weapon', item.name);
+                      const props2 = item.properties || [];
+                      const isFinesse = props2.some(p => p.toLowerCase().includes('acuidade') || p.toLowerCase().includes('finesse'));
+                      const nLow = item.name.toLowerCase();
+                      const isRanged = nLow.includes('arco') || nLow.includes('bow') || nLow.includes('besta') || nLow.includes('crossbow') || props2.some(p => p.toLowerCase().includes('distância') || p.toLowerCase().includes('ranged'));
+                      const strMod = Math.floor((stats.str - 10) / 2);
+                      const dexMod = Math.floor((stats.dex - 10) / 2);
+                      let mod = isRanged ? dexMod : isFinesse ? Math.max(strMod, dexMod) : strMod;
+                      const magicMatch = item.name.match(/\+(\d+)/);
+                      const magicBonus = magicMatch ? parseInt(magicMatch[1], 10) : 0;
+                      const atkBonus = mod + (isProficient ? proficiencyBonus : 0) + magicBonus;
+                      const atkBonusStr = atkBonus >= 0 ? `+${atkBonus}` : `${atkBonus}`;
+                      let baseDice = (item.dmgDice || '1d4').replace(/^(\d+d\d+).*/, '$1');
+                      const dmgMod = mod + magicBonus;
+                      const dmgModStr = dmgMod > 0 ? `+${dmgMod}` : dmgMod < 0 ? `${dmgMod}` : '';
+                      return <WeaponCard key={item.id} styles={styles} item={item} atkBonusStr={atkBonusStr} currentDmg={`${baseDice}${dmgModStr}`} rangeText="1.5m" getSvgIcon={getSvgIcon} />;
+                    })}
+                    {ammos.map(ammo => (
+                      <TouchableOpacity key={ammo.id} style={styles.ammoCard} onPress={() => {
+                        if (ammo.customResourceMax !== undefined && ammo.customResourceMax > 0 && onUpdateEquipment)
+                          onUpdateEquipment(equipment.map(e => e.id === ammo.id ? { ...e, customResourceMax: (e.customResourceMax || 0) - 1 } : e));
+                      }}>
+                        {renderAmmunitionIcon(ammo.name, colors.textMain)}
+                        <Text style={styles.ammoCount}>{ammo.customResourceMax || 0}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                );
+              })()}
             </View>
           </View>
-
           {/* Vitals Expanded Breakdown */}
           
           {/* Detail Modal */}
@@ -719,91 +824,6 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
         </View>
       </View>
 
-      {/* Equipped Weapons HUD (Compact, Bottom Right) */}
-      <View style={styles.weaponsHudContainer}>
-        {(() => {
-          const equippedWeapons = equipment.filter(item => item.type === 'weapon' && item.equipped);
-          if (equippedWeapons.length === 0) return null;
-
-          return equippedWeapons.map(item => {
-            const isProficient = isProficientInItem(characterClass, 'weapon', item.name);
-            const properties = item.properties || [];
-            const isFinesse = properties.some(p => p.toLowerCase().includes('acuidade') || p.toLowerCase().includes('finesse'));
-            
-            const nameLower = item.name.toLowerCase();
-            const isRanged = nameLower.includes('arco') || nameLower.includes('bow') || nameLower.includes('besta') || nameLower.includes('crossbow') || nameLower.includes('honda') || nameLower.includes('sling') || nameLower.includes('dardo') || nameLower.includes('dart') || properties.some(p => p.toLowerCase().includes('distância') || p.toLowerCase().includes('munição') || p.toLowerCase().includes('ranged'));
-            
-            const strMãod = Math.floor((stats.str - 10) / 2);
-            const dexMãod = Math.floor((stats.dex - 10) / 2);
-            
-            let mod = strMãod;
-            if (isRanged) mod = dexMãod;
-            else if (isFinesse) mod = Math.max(strMãod, dexMãod);
-            
-            let magicBonus = 0;
-            const magicMatch = item.name.match(/\+(\d+)/);
-            if (magicMatch) magicBonus = parseInt(magicMatch[1], 10);
-            
-            const atkBonus = mod + (isProficient ? proficiencyBonus : 0) + magicBonus;
-            const atkBonusStr = atkBonus >= 0 ? `+${atkBonus}` : `${atkBonus}`;
-            
-            let baseDice = item.dmgDice || '1d4';
-            const diceMatch = baseDice.match(/^(\d+d\d+)/);
-            if (diceMatch) baseDice = diceMatch[1];
-            
-            const dmgMãod = mod + magicBonus;
-            const dmgMãodStr = dmgMãod > 0 ? `+${dmgMãod}` : dmgMãod < 0 ? `${dmgMãod}` : '';
-            const currentDmg = `${baseDice}${dmgMãodStr}`;
-            
-            let rangeText = '1.5m';
-            const rangeProp = properties.find(p => p.toLowerCase().includes('dist.') || p.toLowerCase().includes('alcance'));
-            if (rangeProp) {
-              const distMatch = rangeProp.match(/dist\.\s*([^)]+)/i);
-              if (distMatch) rangeText = distMatch[1];
-              else if (rangeProp.toLowerCase().includes('alcance')) rangeText = '3m';
-            }
-            
-            return (
-              <WeaponCard styles={styles} 
-                key={item.id}
-                item={item}
-                atkBonusStr={atkBonusStr}
-                currentDmg={currentDmg}
-                rangeText={rangeText}
-                getSvgIcon={getSvgIcon}
-              />
-            );
-          });
-        })()}
-
-        {/* Ammunition Trackers */}
-        {(() => {
-          const ammos = equipment?.filter(e => e.type === 'ammunition') || [];
-          return ammos.map(ammo => (
-            <TouchableOpacity 
-              key={ammo.id} 
-              style={styles.ammoCard}
-              onPress={() => {
-                console.log('Ammo clicked!', ammo.name, ammo.customResourceMax, !!onUpdateEquipment);
-                if (ammo.customResourceMax !== undefined && ammo.customResourceMax > 0 && onUpdateEquipment) {
-                  const newEq = equipment.map(e => 
-                    e.id === ammo.id 
-                      ? { ...e, customResourceMax: (e.customResourceMax || 0) - 1 }
-                      : e
-                  );
-                  console.log('Calling onUpdateEquipment with new max:', (ammo.customResourceMax || 0) - 1);
-                  onUpdateEquipment(newEq);
-                } else {
-                  console.log('Condition failed:', { val: ammo.customResourceMax, fn: !!onUpdateEquipment });
-                }
-              }}
-            >
-              {renderAmmunitionIcon(ammo.name, colors.textMain)}
-              <Text style={styles.ammoCount}>{ammo.customResourceMax || 0}</Text>
-            </TouchableOpacity>
-          ));
-        })()}
-      </View>
     </View>
   );
 };
@@ -1053,13 +1073,62 @@ const useStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 8,
     fontWeight: '800',
   },
-  weaponsHudContainer: {
-    position: 'absolute',
-    bottom: -8,
-    right: 4,
-    alignItems: 'flex-end',
-    zIndex: 20,
-    flexDirection: 'column',
+  footerGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.surfaceHighlight,
+    gap: 8,
+  },
+  footerSection: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  spellbookBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  spellbookBtnLabel: {
+    color: colors.textMain,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  spellbookBtnSlots: {
+    color: colors.textMain,
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  spellbookModal: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '70%' as any,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  spellChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.surfaceHighlight,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    margin: 3,
+  },
+  spellChipText: {
+    color: colors.textMain,
+    fontSize: 11,
+    fontWeight: '600',
   },
   weaponHudCardCompact: {
     flexDirection: 'column',
@@ -1247,5 +1316,31 @@ const useStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginLeft: 6,
   },
+  spellContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    paddingTop: 10,
+  },
+  spellBox: {
+    backgroundColor: colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 10,
+    margin: 5,
+    width: '45%', // Ajusta para duas colunas
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    elevation: 3,
+  },
+  spellBoxText: {
+    color: colors.textMain,
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
+  }
 });
 
