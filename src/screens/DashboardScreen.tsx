@@ -876,9 +876,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           <TouchableOpacity onPress={toggleTheme} style={{marginRight: 12}}>
             <Ionicons name={theme === 'dark' ? "sunny" : "moon"} size={20} color={colors.accentSky} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setRestModalVisible(true)} style={{marginRight: 12}}>
-            <Ionicons name="moon-outline" size={20} color={colors.textMuted} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => { setXpInputValue(''); setXpDetailsModalVisible(true); }} style={styles.levelBadgeContainer}>
             <Svg width="44" height="44" style={{ position: 'absolute' }}>
               <Circle
@@ -926,6 +923,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               preparedSpells={character.preparedSpells}
               spellSlots={character.resources.spellSlots}
               onCastSpell={promptCastSpell}
+              conditions={character.conditions ?? []}
+              onUpdateConditions={handleUpdateConditions}
               onUpdateImageUrl={async (url) => {
                 if (character) {
                   const updatedChar = { ...character, imageUrl: url };
@@ -946,11 +945,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 }
               }}
             />
-
-          <StatusConditions
-            conditions={character.conditions ?? []}
-            onUpdateConditions={handleUpdateConditions}
-          />
         </>}
 
         {activeTab === 'personagem' && <CharacterTab character={character} onUpdateProficiencies={handleUpdateProficiencies} />}
@@ -1007,46 +1001,64 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
       {/* HP & Moedas Sticky Footer */}
       {activeTab === 'tatico' && <View style={styles.hpStickyFooter}>
-          {/* Coins container (transparent background, no borders) */}
-          <TouchableOpacity style={styles.coinsContainerBottom} onPress={() => {
-          setEditCP(String(character.coins?.cp || 0));
-          setEditSP(String(character.coins?.sp || 0));
-          setEditEP(String(character.coins?.ep || 0));
-          setEditGP(String(character.coins?.gp || 0));
-          setEditPP(String(character.coins?.pp || 0));
-          setCoinsModalVisible(true);
-        }} activeOpacity={0.8}>
-            <View style={styles.coinBadgeCompact}>
-              <View style={[styles.coinDot, {
-              backgroundColor: colors.accentSky
-            }]} />
-              <Text style={styles.coinTextCompact}>{character.coins?.gp || 0} gp</Text>
-            </View>
-            <View style={styles.coinBadgeCompact}>
-              <View style={[styles.coinDot, {
-              backgroundColor: colors.textSecondary
-            }]} />
-              <Text style={styles.coinTextCompact}>{character.coins?.pp || 0} pp</Text>
-            </View>
-            <View style={styles.coinBadgeCompact}>
-              <View style={[styles.coinDot, {
-              backgroundColor: colors.accentViolet
-            }]} />
-              <Text style={styles.coinTextCompact}>{character.coins?.ep || 0} ep</Text>
-            </View>
-            <View style={styles.coinBadgeCompact}>
-              <View style={[styles.coinDot, {
-              backgroundColor: colors.textMuted
-            }]} />
-              <Text style={styles.coinTextCompact}>{character.coins?.sp || 0} sp</Text>
-            </View>
-            <View style={styles.coinBadgeCompact}>
-              <View style={[styles.coinDot, {
-              backgroundColor: '#B45309'
-            }]} />
-              <Text style={styles.coinTextCompact}>{character.coins?.cp || 0} cp</Text>
-            </View>
-          </TouchableOpacity>
+          {/* Coins & Rest Container */}
+          <View style={{ 
+            flexDirection: 'row', 
+            justifyContent: 'center', // Centraliza o conteúdo principal (moedas)
+            alignItems: 'center', 
+            marginBottom: 8, 
+            width: '100%',
+            position: 'relative' // Permite o posicionamento absoluto do filho
+          }}>
+            
+            {/* Coins container (centralizado absolutamente) */}
+            <TouchableOpacity 
+              style={styles.coinsContainerBottom} // Removi o flex: 1 para ele ficar natural no centro
+              onPress={() => {
+                setEditCP(String(character.coins?.cp || 0));
+                setEditSP(String(character.coins?.sp || 0));
+                setEditEP(String(character.coins?.ep || 0));
+                setEditGP(String(character.coins?.gp || 0));
+                setEditPP(String(character.coins?.pp || 0));
+                setCoinsModalVisible(true);
+              }} 
+              activeOpacity={0.8}
+            >
+              <View style={styles.coinBadgeCompact}>
+                <View style={[styles.coinDot, { backgroundColor: colors.accentSky }]} />
+                <Text style={styles.coinTextCompact}>{character.coins?.gp || 0} gp</Text>
+              </View>
+              
+              <View style={styles.coinBadgeCompact}>
+                <View style={[styles.coinDot, { backgroundColor: colors.textSecondary }]} />
+                <Text style={styles.coinTextCompact}>{character.coins?.pp || 0} pp</Text>
+              </View>
+              
+              <View style={styles.coinBadgeCompact}>
+                <View style={[styles.coinDot, { backgroundColor: colors.accentViolet }]} />
+                <Text style={styles.coinTextCompact}>{character.coins?.ep || 0} ep</Text>
+              </View>
+              
+              <View style={styles.coinBadgeCompact}>
+                <View style={[styles.coinDot, { backgroundColor: colors.textMuted }]} />
+                <Text style={styles.coinTextCompact}>{character.coins?.sp || 0} sp</Text>
+              </View>
+              
+              <View style={styles.coinBadgeCompact}>
+                <View style={[styles.coinDot, { backgroundColor: '#B45309' }]} />
+                <Text style={styles.coinTextCompact}>{character.coins?.cp || 0} cp</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Rest Button absoluto na direita */}
+            <TouchableOpacity 
+              onPress={() => setRestModalVisible(true)} 
+              style={{ position: 'absolute', right: 0, padding: 4 }}
+            >
+              <Ionicons name="bed" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+
+          </View>
 
           {/* HP Progress Bar */}
           {(() => {

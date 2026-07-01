@@ -5,6 +5,17 @@ import { Alert } from '../utils/alert';
 import { EquipmentItem } from '../types/character';
 import { Ionicons } from '@expo/vector-icons';
 import { MAGIC_ITEMS_LIST, MagicItemTemplate, isProficientInItem, WEAPON_TEMPLATES, AMMUNITION_TEMPLATES } from '../utils/dndRules';
+import Svg, { Path } from 'react-native-svg';
+import SwordIcon from '../../assets/icons/ffffff/transparent/1x1/delapouite/sword-brandish.svg';
+import AxeIcon from '../../assets/icons/ffffff/transparent/1x1/delapouite/sharp-axe.svg';
+import MaceIcon from '../../assets/icons/ffffff/transparent/1x1/delapouite/flanged-mace.svg';
+import DaggerIcon from '../../assets/icons/ffffff/transparent/1x1/lorc/sacrificial-dagger.svg';
+import SpearIcon from '../../assets/icons/ffffff/transparent/1x1/lorc/barbed-spear.svg';
+import BowIcon from '../../assets/icons/ffffff/transparent/1x1/delapouite/bow-arrow.svg';
+import CrossbowIcon from '../../assets/icons/ffffff/transparent/1x1/carl-olsen/crossbow.svg';
+import HammerIcon from '../../assets/icons/ffffff/transparent/1x1/delapouite/thor-hammer.svg';
+import WizardStaffIcon from '../../assets/icons/ffffff/transparent/1x1/lorc/wizard-staff.svg';
+import ArrowIcon from '../../assets/icons/ffffff/transparent/1x1/lorc/arrowhead.svg';
 
 interface EquipmentTrackerProps {
   equipment: EquipmentItem[];
@@ -56,6 +67,54 @@ export const EquipmentTracker: React.FC<EquipmentTrackerProps> = ({
   // Magic item states
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMagicItem, setSelectedMagicItem] = useState<MagicItemTemplate | null>(null);
+  const getDynamicIcon = (name: string, color: string, size: number = 20) => {
+  const n = name.toLowerCase();
+    if (n.includes('machado') || n.includes('axe')) return <AxeIcon width={size} height={size} fill={color} />;
+    if (n.includes('arco') || n.includes('bow')) return <BowIcon width={size} height={size} fill={color} />;
+    if (n.includes('besta') || n.includes('crossbow')) return <CrossbowIcon width={size} height={size} fill={color} />;
+    if (n.includes('adaga') || n.includes('dagger')) return <DaggerIcon width={size} height={size} fill={color} />;
+    if (n.includes('lança') || n.includes('spear')) return <SpearIcon width={size} height={size} fill={color} />;
+    if (n.includes('bastão') || n.includes('staff')) return <WizardStaffIcon width={size} height={size} fill={color} />;
+    if (n.includes('maça') || n.includes('mace') || n.includes('clava')) return <MaceIcon width={size} height={size} fill={color} />;
+    if (n.includes('martelo') || n.includes('hammer')) return <HammerIcon width={size} height={size} fill={color} />;
+    return <SwordIcon width={size} height={size} fill={color} />;
+  };
+  const renderAmmunitionIcon = (name: string, color: string) => {
+  const n = name.toLowerCase();
+    if (n.includes('agulha') || n.includes('needle')) {
+      return (
+        <Svg width={20} height={20} viewBox="0 0 64 64">
+          <Path fill={color} d=" M 10.22 8.29 C 11.74 7.61 13.03 9.00 14.03 9.94 C 17.67 13.65 21.42 17.24 25.01 20.99 C 26.17 21.92 25.62 23.43 26.10 24.64 C 35.86 34.34 45.59 44.06 55.28 53.83 C 56.85 54.64 54.73 56.85 53.86 55.32 C 44.13 45.59 34.37 35.89 24.67 26.13 C 20.92 26.29 18.97 22.74 16.46 20.53 C 13.88 17.83 11.03 15.38 8.64 12.51 C 7.40 11.03 8.61 8.85 10.22 8.29 M 10.28 10.32 L 10.41 11.63 C 14.63 15.73 18.64 20.04 22.97 24.03 C 23.21 23.80 23.71 23.34 23.96 23.11 C 20.25 18.57 15.65 14.70 11.62 10.39 L 10.28 10.32 Z" />
+        </Svg>
+      );
+    }
+    if (n.includes('virote') || n.includes('bolt')) {
+      return (
+        <Svg width={20} height={20} viewBox="0 0 512 512">
+          <Path fill={color} d=" M 45.08 34.13 C 53.38 30.37 63.80 32.28 70.22 38.74 C 95.31 63.81 120.40 88.87 145.46 113.97 C 134.97 124.46 124.50 134.97 113.98 145.43 C 88.90 120.38 63.84 95.31 38.77 70.24 C 33.41 65.08 30.93 57.18 32.44 49.89 C 33.73 42.97 38.62 36.90 45.08 34.13 Z" />
+          <Path fill={color} d=" M 125.27 156.75 C 135.77 146.28 146.25 135.79 156.73 125.30 C 163.42 131.95 170.08 138.64 176.76 145.31 C 166.30 155.83 155.81 166.32 145.29 176.79 C 138.63 170.10 131.94 163.43 125.27 156.75 Z" />
+          <Path fill={color} d=" M 156.67 188.12 C 167.14 177.62 177.63 167.14 188.13 156.65 C 254.74 223.20 321.31 289.80 387.88 356.39 C 377.43 366.92 366.92 377.40 356.41 387.87 C 289.87 321.25 223.23 254.72 156.67 188.12 Z" />
+          <Path fill={color} d=" M 338.07 283.94 C 365.79 283.87 393.50 283.85 421.22 283.69 C 437.15 299.40 452.90 315.29 468.70 331.12 C 440.98 331.24 413.26 331.24 385.54 331.36 C 369.66 315.62 353.89 299.76 338.07 283.94 Z" />
+          <Path fill={color} d=" M 283.97 338.07 C 299.78 353.90 315.69 369.64 331.39 385.59 C 331.20 413.29 331.25 440.99 331.13 468.69 C 315.33 452.86 299.46 437.09 283.70 421.22 C 283.86 393.50 283.84 365.79 283.97 338.07 Z" />
+        </Svg>
+      );
+    }
+    if (n.includes('funda') || n.includes('bullet') || n.includes('bala') || n.includes('slingshot')) {
+      return (
+        <Svg width={20} height={20} viewBox="0 0 512 512">
+          <Path fill={color} d=" M 234.91 173.85 C 247.87 168.52 262.79 168.31 275.94 173.07 C 293.09 179.15 306.90 193.68 312.12 211.10 C 288.51 214.43 267.12 229.85 256.45 251.17 C 245.76 229.89 224.43 214.37 200.80 211.10 C 205.79 194.39 218.68 180.27 234.91 173.85 Z" />
+          <Path fill={color} d=" M 185.36 226.48 C 199.88 225.26 214.83 229.71 226.21 238.83 C 237.46 247.65 245.27 260.75 247.59 274.87 C 250.18 289.50 246.69 305.05 238.30 317.29 C 229.76 329.88 216.14 338.96 201.15 341.73 C 186.59 344.67 170.98 341.51 158.55 333.41 C 145.23 324.83 135.63 310.62 132.89 294.99 C 129.97 279.74 133.69 263.40 142.74 250.81 C 152.48 236.97 168.50 227.85 185.36 226.48 Z" />
+          <Path fill={color} d=" M 318.36 226.44 C 332.39 225.38 346.79 229.60 357.94 238.20 C 369.60 247.02 377.75 260.37 380.13 274.80 C 383.03 290.98 378.44 308.26 368.09 321.00 C 359.43 331.83 346.80 339.45 333.12 341.84 C 318.12 344.71 302.07 341.12 289.58 332.38 C 276.78 323.57 267.75 309.47 265.28 294.11 C 262.67 279.21 266.36 263.38 275.11 251.06 C 284.94 236.98 301.23 227.69 318.36 226.44 Z" />
+        </Svg>
+      );
+    }
+    return (
+      <Svg width={20} height={20} viewBox="0 0 50 50">
+        <Path fill={color} d=" M 38.10 5.24 C 41.06 4.36 44.01 3.35 47.10 3.01 C 46.55 6.03 45.66 8.97 44.76 11.89 C 42.95 11.90 41.15 12.06 39.34 12.06 C 32.85 18.60 26.36 25.13 19.78 31.59 C 19.55 31.17 19.09 30.32 18.86 29.90 C 25.04 23.32 31.61 17.09 37.95 10.66 C 37.94 8.85 38.10 7.05 38.10 5.24 Z" />
+        <Path fill={color} d=" M 9.74 31.80 C 11.79 28.92 15.65 30.26 18.62 30.00 C 15.19 33.36 11.85 36.80 8.41 40.13 C 8.91 40.38 9.91 40.87 10.42 41.12 C 13.51 37.82 16.77 34.68 19.98 31.50 C 19.77 34.42 21.04 38.20 18.23 40.24 C 15.52 42.55 13.52 45.87 10.13 47.26 C 10.08 45.29 10.03 43.32 10.05 41.34 C 9.08 42.28 8.16 43.28 7.09 44.09 C 4.42 43.17 7.66 41.18 8.43 40.02 C 6.52 40.02 4.62 39.87 2.71 39.80 C 4.26 36.52 7.40 34.47 9.74 31.80 Z" />
+      </Svg>
+    );
+  };
 
   const getIcon = (type: EquipmentItem['type']) => {
     switch (type) {
@@ -221,7 +280,18 @@ export const EquipmentTracker: React.FC<EquipmentTrackerProps> = ({
             activeOpacity={0.7}
           >
             <View style={[styles.iconBg, { backgroundColor: getIconColor(item.type, item.equipped) + '1A' }]}>
-              <Ionicons name={getIcon(item.type) as any} size={20} color={getIconColor(item.type, item.equipped)} />
+              {item.type === 'weapon' ? (
+                getDynamicIcon(item.name, getIconColor(item.type, item.equipped), 20)
+              ) : item.type === 'ammunition' ? (
+                renderAmmunitionIcon(item.name, getIconColor(item.type, item.equipped))
+              ) : (
+                <Ionicons 
+                  // Usando nomes que existem no Ionicons:
+                  name={item.type === 'armor' ? 'shirt' : item.type === 'shield' ? 'shield-half' : item.type === 'ring' ? 'finger-print' : 'briefcase'} 
+                  size={20} 
+                  color={getIconColor(item.type, item.equipped)} 
+                />
+              )}
             </View>
             <View style={styles.itemDetails}>
               <View style={styles.nameRow}>
@@ -244,10 +314,19 @@ export const EquipmentTracker: React.FC<EquipmentTrackerProps> = ({
                     <Text style={[styles.magicBadgeText, { color: getRarityColor(item.rarity) }]}>{item.rarity}</Text>
                   </View>
                 )}
-                {item.customResourceName && item.customResourceMax && (
-                  <View style={[styles.magicBadge, { backgroundColor: colors.accentAmber + '22', borderColor: colors.accentAmber }]}>
-                    <Text style={[styles.magicBadgeText, { color: colors.accentAmber }]}>
-                      ⚡ {item.customResourceMax} Cargas
+                {item.customResourceName && item.customResourceMax !== undefined && (
+                  <View style={[
+                    styles.magicBadge, 
+                    { 
+                      backgroundColor: item.customResourceMax > 0 ? colors.accentAmber + '22' : '#EF444422', // Fica vermelhinho quando acaba
+                      borderColor: item.customResourceMax > 0 ? colors.accentAmber : '#EF4444' 
+                    }
+                  ]}>
+                    <Text style={[
+                      styles.magicBadgeText, 
+                      { color: item.customResourceMax > 0 ? colors.accentAmber : '#EF4444' }
+                    ]}>
+                      ⚡ {item.customResourceMax > 0 ? `${item.customResourceMax} Cargas` : 'Sem cargas'}
                     </Text>
                   </View>
                 )}

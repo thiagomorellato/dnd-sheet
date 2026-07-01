@@ -17,6 +17,7 @@ import SpearIcon from '../../assets/icons/ffffff/transparent/1x1/lorc/barbed-spe
 import BowIcon from '../../assets/icons/ffffff/transparent/1x1/delapouite/bow-arrow.svg';
 import CrossbowIcon from '../../assets/icons/ffffff/transparent/1x1/carl-olsen/crossbow.svg';
 import HammerIcon from '../../assets/icons/ffffff/transparent/1x1/delapouite/thor-hammer.svg';
+import WizardStaffIcon from '../../assets/icons/ffffff/transparent/1x1/lorc/wizard-staff.svg';
 import ArrowIcon from '../../assets/icons/ffffff/transparent/1x1/lorc/arrowhead.svg';
 
 if (Platform.OS === 'android') {
@@ -40,7 +41,27 @@ interface VitalsWidgetProps {
   preparedSpells?: string[];
   spellSlots?: Record<string, { current: number; max: number }>;
   onCastSpell?: (spellName: string) => void;
+  conditions?: string[];
+  onUpdateConditions?: (c: string[]) => void;
 }
+
+const CONDITIONS_LIST = [
+  { id: 'blinded', name: 'Cego', icon: 'eye-off-outline', color: '#6B7280', description: 'Não pode ver. Desvantagem em ataques.' },
+  { id: 'charmed', name: 'Enfeitiçado', icon: 'heart-outline', color: '#EC4899', description: 'Não pode atacar o encantador.' },
+  { id: 'deafened', name: 'Ensurdecido', icon: 'ear-outline', color: '#94A3B8', description: 'Não pode ouvir.' },
+  { id: 'exhausted', name: 'Exausto', icon: 'battery-dead-outline', color: '#F97316', description: 'Acumulativo: desvantagem → velocidade reduzida → morte.' },
+  { id: 'frightened', name: 'Amedrontado', icon: 'alert-circle-outline', color: '#F59E0B', description: 'Desvantagem enquanto puder ver a fonte do medo.' },
+  { id: 'grappled', name: 'Agarrado', icon: 'hand-right-outline', color: '#8B5CF6', description: 'Velocidade 0.' },
+  { id: 'incapacitated', name: 'Incapacitado', icon: 'ban-outline', color: '#EF4444', description: 'Não pode fazer ações ou reações.' },
+  { id: 'invisible', name: 'Invisível', icon: 'glasses-outline', color: '#60A5FA', description: 'Vantagem em ataques, inimigos têm desvantagem.' },
+  { id: 'paralyzed', name: 'Paralisado', icon: 'lock-closed-outline', color: '#DC2626', description: 'Incapacitado. Ataques adjacentes são críticos.' },
+  { id: 'petrified', name: 'Petrificado', icon: 'cube-outline', color: '#78716C', description: 'Transformado em pedra. Incapacitado.' },
+  { id: 'poisoned', name: 'Envenenado', icon: 'flask-outline', color: '#10B981', description: 'Desvantagem em ataques e checks.' },
+  { id: 'prone', name: 'Caído', icon: 'arrow-down-outline', color: '#6366F1', description: 'Desvantagem em ataques. Ataques adjacentes têm vantagem.' },
+  { id: 'restrained', name: 'Contido', icon: 'lock-open-outline', color: '#D97706', description: 'Velocidade 0. Desvantagem em ataques.' },
+  { id: 'stunned', name: 'Atordoado', icon: 'flash-outline', color: '#7C3AED', description: 'Incapacitado, não pode se mover.' },
+  { id: 'unconscious', name: 'Inconsciente', icon: 'moon-outline', color: '#4B5563', description: 'Caído e incapacitado. Ataques adjacentes são críticos.' },
+];
 
 export const SKILL_MAPPING: Record<keyof BaseStats, string[]> = {
   str: ['Athletics'],
@@ -207,6 +228,8 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
   preparedSpells = [],
   spellSlots = {},
   onCastSpell,
+  conditions = [],
+  onUpdateConditions,
 }) => {
   const [skillsExpanded, setSkillsExpanded] = useState(false);
   const [newProfText, setNewProfText] = useState('');
@@ -214,6 +237,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
   const [tempImageUrl, setTempImageUrl] = useState('');
   const [spellbookVisible, setSpellbookVisible] = useState(false);
+  const [conditionsVisible, setConditionsVisible] = useState(false);
   const { colors } = useTheme();
   const styles = useStyles(colors);
 
@@ -362,6 +386,7 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
     if (n.includes('adaga') || n.includes('dagger')) return <DaggerIcon width={size} height={size} fill={color} />;
     if (n.includes('lança') || n.includes('spear') || n.includes('pike')) return <SpearIcon width={size} height={size} fill={color} />;
     if (n.includes('maça') || n.includes('mace') || n.includes('clava')) return <MaceIcon width={size} height={size} fill={color} />;
+    if (n.includes('bastão') || n.includes('staff')) return <WizardStaffIcon width={size} height={size} fill={color} />;
     if (n.includes('martelo') || n.includes('hammer')) return <HammerIcon width={size} height={size} fill={color} />;
     
     return <SwordIcon width={size} height={size} fill={color} />;
@@ -710,6 +735,35 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
                 );
               })()}
             </View>
+            {/* Condições (Centro) */}
+            <View style={{ alignItems: 'center' }}>
+            {conditions.length > 0 && (
+              <View style={styles.conditionsContainer}>
+                {conditions.slice(0, 15).map(id => { // Agora pega até 15
+                  const C = CONDITIONS_LIST.find(c => c.id === id);
+                  return C ? (
+                    <View 
+                      key={id} 
+                      style={[styles.conditionIndicator, { backgroundColor: C.color }]} 
+                    />
+                  ) : null;
+                })}
+              </View>
+
+              )}
+              
+              <TouchableOpacity 
+                style={[styles.spellbookBtn, { paddingHorizontal: 12, paddingVertical: 6 }]} // Botão mais compacto
+                onPress={() => setConditionsVisible(true)} 
+                activeOpacity={0.75}
+              >
+                <Ionicons 
+                  name="medical-outline" 
+                  size={16} // Ícone ligeiramente menor
+                  color={conditions.length > 0 ? '#EF4444' : colors.textMain} 
+                />
+              </TouchableOpacity>
+            </View>
 
             {/* Armas (Direita) */}
             <View style={{ alignItems: 'flex-end' }}>
@@ -818,6 +872,46 @@ export const VitalsWidget: React.FC<VitalsWidgetProps> = ({
               </TouchableOpacity>
             </TouchableOpacity>
           </Modal>
+
+<Modal visible={conditionsVisible} transparent animationType="fade">
+  <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={() => setConditionsVisible(false)}>
+    <TouchableOpacity activeOpacity={1} style={[styles.detailModalContent, { maxWidth: 360 }]}>
+      <Text style={styles.detailModalTitle}>Condições</Text>
+      
+      {/* Container Grid */}
+      <View style={styles.conditionsGrid}>
+        {CONDITIONS_LIST.map(cond => {
+          const isActive = conditions.includes(cond.id);
+          return (
+            <TouchableOpacity
+              key={cond.id}
+              style={[
+                styles.conditionBox, 
+                { 
+                  borderColor: isActive ? cond.color : colors.border, 
+                  backgroundColor: isActive ? cond.color + '22' : 'transparent' 
+                }
+              ]}
+              onPress={() => {
+                if (!onUpdateConditions) return;
+                onUpdateConditions(isActive ? conditions.filter(c => c !== cond.id) : [...conditions, cond.id]);
+              }}
+            >
+              <Ionicons name={cond.icon as any} size={20} color={isActive ? cond.color : colors.textMuted} />
+              <Text style={[styles.conditionBoxText, { color: isActive ? cond.color : colors.textMain }]}>
+                {cond.name}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <TouchableOpacity onPress={() => setConditionsVisible(false)} style={{ marginTop: 20, padding: 8 }}>
+        <Text style={{ color: colors.textMuted }}>Fechar</Text>
+      </TouchableOpacity>
+    </TouchableOpacity>
+  </TouchableOpacity>
+</Modal>
 
 
 
@@ -1096,6 +1190,27 @@ const useStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 7,
   },
+  conditionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 6,
+  },
+  conditionBtnText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+    marginLeft: 6,
+    flex: 1,
+  },
+  conditionDesc: {
+    color: '#94A3B8',
+    fontSize: 10,
+    marginTop: 3,
+    marginLeft: 24,
+  },
   spellbookBtnLabel: {
     color: colors.textMain,
     fontSize: 12,
@@ -1341,6 +1456,41 @@ const useStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  conditionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  conditionBox: {
+    width: '30%', // Ajuste para caber 3 por linha. Use '45%' se quiser apenas 2.
+    aspectRatio: 1, // Mantém quadrado
+    margin: '1.5%',
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  conditionBoxText: {
+    fontSize: 10,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  conditionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Permite quebrar a linha
+    justifyContent: 'center',
+    width: 70, // (6px largura + 4px margem total) * 5 colunas = 50px + um pouco de folga
+    marginBottom: 4,
+  },
+  conditionIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    margin: 2, // Margem para dar espaçamento entre elas
   }
 });
 

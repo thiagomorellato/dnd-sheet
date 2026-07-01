@@ -465,7 +465,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Clava",
     "dmgDice": "1d4",
     "handedness": "1 Mão",
-    "dmgType": "Cortante",
+    "dmgType": "Impacto",
     "properties": [
       "Leve (Light)"
     ],
@@ -489,7 +489,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Clava Grande",
     "dmgDice": "1d8",
     "handedness": "2 Mãos",
-    "dmgType": "Cortante",
+    "dmgType": "Impacto",
     "properties": [
       "Duas Mãos"
     ],
@@ -512,7 +512,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Azagaia",
     "dmgDice": "1d6",
     "handedness": "1 Mão",
-    "dmgType": "Cortante",
+    "dmgType": "Perfurante",
     "properties": [
       "Arremesso (dist. 30/120m)"
     ],
@@ -535,16 +535,16 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Maça",
     "dmgDice": "1d6",
     "handedness": "1 Mão",
-    "dmgType": "Cortante",
+    "dmgType": "Impacto",
     "properties": [],
     "category": "Simples",
     "rangeType": "Corpo-a-corpo"
   },
   {
-    "name": "Bordão",
+    "name": "Bastão",
     "dmgDice": "1d6",
     "handedness": "Versátil",
-    "dmgType": "Cortante",
+    "dmgType": "Impacto",
     "properties": [
       "Versátil (Versatile)"
     ],
@@ -567,7 +567,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Lança",
     "dmgDice": "1d6",
     "handedness": "Versátil",
-    "dmgType": "Cortante",
+    "dmgType": "Perfurante",
     "properties": [
       "Arremesso (dist. 20/60m)",
       "Versátil (Versatile)"
@@ -723,7 +723,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Malho",
     "dmgDice": "2d6",
     "handedness": "2 Mãos",
-    "dmgType": "Cortante",
+    "dmgType": "Impacto",
     "properties": [
       "Pesada (Heavy)",
       "Duas Mãos"
@@ -735,7 +735,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Estrela da Manhã",
     "dmgDice": "1d8",
     "handedness": "1 Mão",
-    "dmgType": "Cortante",
+    "dmgType": "Perfurante",
     "properties": [],
     "category": "Marcial",
     "rangeType": "Corpo-a-corpo"
@@ -792,7 +792,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Tridente",
     "dmgDice": "1d7",
     "handedness": "Versátil",
-    "dmgType": "Cortante",
+    "dmgType": "Perfurante",
     "properties": [
       "Arremesso (dist. 20/60m)",
       "Versátil (Versatile)"
@@ -805,7 +805,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Picareta de Guerra",
     "dmgDice": "1d8",
     "handedness": "1 Mão",
-    "dmgType": "Cortante",
+    "dmgType": "Perfurante",
     "properties": [],
     "category": "Marcial",
     "rangeType": "Corpo-a-corpo"
@@ -814,7 +814,7 @@ export const WEAPON_TEMPLATES: WeaponTemplate[] = [
     "name": "Martelo de Guerra",
     "dmgDice": "1d8",
     "handedness": "Versátil",
-    "dmgType": "Cortante",
+    "dmgType": "Impacto",
     "properties": [
       "Versátil (Versatile)"
     ],
@@ -969,7 +969,16 @@ export const ARMOR_TEMPLATES: ArmorTemplate[] = [
 ];
 
 export function getSpellSlotsForClass(className: string, level: number): Record<string, { current: number, max: number }> {
-  // 1. Definição da progressão de slots (tabela oficial D&D 5e)
+  const n = className.toLowerCase();
+
+  // 1. Warlock: Lógica especial de Pact Magic
+  if (['bruxo', 'warlock'].some(c => n.includes(c))) {
+    const slotLevel = Math.min(Math.ceil(level / 2), 5);
+    const numSlots = level === 1 ? 1 : level >= 11 ? 3 : 2;
+    return { [`L${slotLevel}`]: { current: numSlots, max: numSlots } };
+  }
+
+  // 2. Definição das tabelas de progressão (1-20)
   const progressions: Record<string, any> = {
     'full': { // Magos, Clérigos, Druidas, Feiticeiros, Bardos
       1: {L1: 2}, 2: {L1: 3}, 3: {L1: 4, L2: 2}, 4: {L1: 4, L2: 3}, 
@@ -982,34 +991,44 @@ export function getSpellSlotsForClass(className: string, level: number): Record<
       18: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 3, L6: 1, L7: 1, L8: 1, L9: 1}, 19: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 3, L6: 2, L7: 1, L8: 1, L9: 1},
       20: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 3, L6: 2, L7: 2, L8: 1, L9: 1}
     },
-    'half': { // Paladinos e Patrulheiros
+    'half': { // Paladinos, Patrulheiros, Artífices
       2: {L1: 2}, 3: {L1: 3}, 4: {L1: 3}, 5: {L1: 4, L2: 2}, 6: {L1: 4, L2: 2},
       7: {L1: 4, L2: 3}, 8: {L1: 4, L2: 3}, 9: {L1: 4, L2: 3, L3: 2}, 10: {L1: 4, L2: 3, L3: 2},
       11: {L1: 4, L2: 3, L3: 3}, 12: {L1: 4, L2: 3, L3: 3}, 13: {L1: 4, L2: 3, L3: 3, L4: 1},
       14: {L1: 4, L2: 3, L3: 3, L4: 1}, 15: {L1: 4, L2: 3, L3: 3, L4: 2}, 16: {L1: 4, L2: 3, L3: 3, L4: 2},
       17: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 1}, 18: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 1},
       19: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2}, 20: {L1: 4, L2: 3, L3: 3, L4: 3, L5: 2}
+    },
+    'third': { // Eldritch Knight e Arcane Trickster
+      3: {L1: 2}, 4: {L1: 3}, 5: {L1: 3}, 6: {L1: 3}, 7: {L1: 4, L2: 2}, 8: {L1: 4, L2: 2},
+      9: {L1: 4, L2: 2}, 10: {L1: 4, L2: 3}, 11: {L1: 4, L2: 3}, 12: {L1: 4, L2: 3},
+      13: {L1: 4, L2: 3, L3: 2}, 14: {L1: 4, L2: 3, L3: 2}, 15: {L1: 4, L2: 3, L3: 2},
+      16: {L1: 4, L2: 3, L3: 3}, 17: {L1: 4, L2: 3, L3: 3}, 18: {L1: 4, L2: 3, L3: 3},
+      19: {L1: 4, L2: 3, L3: 3, L4: 1}, 20: {L1: 4, L2: 3, L3: 3, L4: 1}
     }
   };
 
-  // 2. Determinar o tipo de caster
-  const n = className.toLowerCase();
+  // 3. Determinar o tipo de caster
   let type = 'none';
   if (['mago', 'wizard', 'clérigo', 'cleric', 'druida', 'druid', 'bardo', 'bard', 'feiticeiro', 'sorcerer'].some(c => n.includes(c))) type = 'full';
   else if (['paladino', 'paladin', 'patrulheiro', 'ranger', 'artífice', 'artificer'].some(c => n.includes(c))) type = 'half';
+  else if (['guerreiro', 'fighter', 'ladino', 'rogue'].some(c => n.includes(c))) {
+    if (n.includes('arcane') || n.includes('arcano') || n.includes('knight') || n.includes('trickster')) {
+      type = 'third';
+    }
+  }
 
-  if (type === 'none') return {};
+  if (type === 'none' || !progressions[type][level]) return {};
 
-  // 3. Montar o retorno (CORRIGIDO PARA USAR O PADRÃO 'L1', 'L2')
-  const slots = progressions[type][level] || {};
+  // 4. Montar o retorno
+  const slots = progressions[type][level];
   const result: Record<string, { current: number, max: number }> = {};
   
   Object.entries(slots).forEach(([lvl, max]: any) => {
-    // Aqui garantimos que a chave seja exatamente 'L1', 'L2', etc.
-    // Se o 'lvl' já for 'L1', ele mantém. Se for '1', ele vira 'L1'.
     const key = lvl.startsWith('L') ? lvl : `L${lvl}`;
     result[key] = { current: max, max: max };
   });
+
   return result;
 }
 
@@ -3432,14 +3451,14 @@ export const isProficientInItem = (characterClass: string, itemType: string, ite
   const isSimpleWeapon = itemCategory === 'Simples' || 
     name.includes('adaga') || name.includes('dagger') ||
     name.includes('lança') || name.includes('spear') ||
-    name.includes('bordão') || name.includes('quarterstaff') ||
+    name.includes('bastão') || name.includes('quarterstaff') ||
     name.includes('maça') || name.includes('mace') ||
     name.includes('machadinha') || name.includes('handaxe') ||
     name.includes('curto') || name.includes('shortbow') ||
     name.includes('besta leve') || name.includes('light crossbow') ||
     name.includes('azagaia') || name.includes('javelin') ||
     name.includes('clava') || name.includes('club') ||
-    name.includes('adaga') || name.includes('dart') ||
+    name.includes('dardo') || name.includes('dart') ||
     name.includes('honda') || name.includes('sling');
 
   const isMartialWeapon = itemCategory === 'Marcial' ||
@@ -3508,7 +3527,7 @@ export const isProficientInItem = (characterClass: string, itemType: string, ite
              name.includes('dart') || name.includes('dardo') ||
              name.includes('javelin') || name.includes('azagaia') ||
              name.includes('mace') || name.includes('maça') ||
-             name.includes('quarterstaff') || name.includes('bordão') ||
+             name.includes('quarterstaff') || name.includes('bastão') ||
              name.includes('scimitar') || name.includes('cimitarra') ||
              name.includes('sickle') || name.includes('foice') ||
              name.includes('sling') || name.includes('honda') ||
@@ -3537,7 +3556,7 @@ export const isProficientInItem = (characterClass: string, itemType: string, ite
       return name.includes('dagger') || name.includes('adaga') ||
              name.includes('dart') || name.includes('dardo') ||
              name.includes('sling') || name.includes('honda') ||
-             name.includes('quarterstaff') || name.includes('bordão') ||
+             name.includes('quarterstaff') || name.includes('bastão') ||
              name.includes('light crossbow') || name.includes('besta leve');
     }
   }

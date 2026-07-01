@@ -25,43 +25,83 @@ export const RestModal: React.FC<RestModalProps> = ({
   const [restType, setRestType] = useState<'choose' | 'short' | 'long'>('choose');
   const [dicesToSpend, setDicesToSpend] = useState(1);
 
-  const hitDiceAvailable = character.hitDice?.current ?? character.level;
-  const hitDieType = character.hitDice?.dieType ?? getHitDieType(character.characterClass);
-  const conMod = Math.floor((character.baseStats.con - 10) / 2);
+  // 1. Fallbacks rígidos para proteger a renderização e cálculos
+  const level = character?.level ?? 1;
+  const hitDiceCurrent = character?.hitDice?.current;
+  const hitDiceAvailable = hitDiceCurrent !== undefined ? hitDiceCurrent : level;
+
+  const rawHitDie = character?.hitDice?.dieType ?? getHitDieType(character?.characterClass ?? 'fighter') ?? 'd8';
+  const hitDieType = String(rawHitDie).toLowerCase();
+
+  const rawCon = character?.baseStats?.con ?? 10;
+  const conMod = Math.floor((rawCon - 10) / 2);
 
   const rollShortRest = () => {
-    if (hitDiceAvailable <= 0) {
-      Alert.alert('Sem Dados de Vida', 'Você não tem dados de vida disponíveis para gastar.');
-      return;
+    try {
+      if (hitDiceAvailable <= 0) {
+        Alert.alert('Sem Dados de Vida', 'Você não tem dados de vida disponíveis para gastar.');
+        return;
+      }
+
+      const actual = Math.min(dicesToSpend, hitDiceAvailable);
+      
+      // Extração robusta do tamanho do dado (se for "1d8", pega só o "8")
+      const dieStringParts = hitDieType.split('d');
+      const dieSizeStr = dieStringParts[dieStringParts.length - 1]; 
+      const dieSize = parseInt(dieSizeStr, 10) || 8; 
+
+      let totalHeal = 0;
+      const rolls: number[] = []; 
+
+      for (let i = 0; i < actual; i++) {
+        const roll = Math.floor(Math.random() * dieSize) + 1;
+        rolls.push(roll);
+        totalHeal += roll + conMod;
+      }
+      
+      totalHeal = Math.max(0, totalHeal);
+      
+      // Blindagem do HP
+      const hpMax = character?.hp?.max ?? 0;
+      const hpCurrent = character?.hp?.current ?? 0;
+      
+      const maxHeal = hpMax - hpCurrent;
+      const actualHeal = Math.min(totalHeal, Math.max(0, maxHeal));
+
+      // Garante que todas as variáveis existam antes de chamar o Alert
+      const rollStr = rolls.join(', ');
+      const title = '💤 Descanso Curto';
+      const message = `Rolou ${actual}x ${hitDieType}: [${rollStr}]\n+${conMod} CON cada\nCura total: +${actualHeal} HP`;
+
+      console.log("Tentando exibir alerta:", message);
+
+      // 1. Executa a cura e fecha a modal IMEDIATAMENTE (não depende mais do clique no OK)
+      if (onShortRest) onShortRest(actualHeal, actual);
+      setRestType('choose');
+      onClose();
+
+      // 2. Dispara o alerta logo em seguida com um pequeno atraso 
+      // (Isso resolve o bug do React Native de alerta sobrepondo modal)
+      setTimeout(() => {
+        Alert.alert(title, message);
+      }, 300);
+
+    } catch (error) {
+      console.error("Erro ao rolar descanso:", error);
+      Alert.alert("Erro", "Falha ao calcular o descanso. Verifique os status do personagem.");
     }
-    const actual = Math.min(dicesToSpend, hitDiceAvailable);
-    const dieSize = parseInt(hitDieType.replace('d', ''), 10);
-    let totalHeal = 0;
-    const rolls: number[] = [];
-    for (let i = 0; i < actual; i++) {
-      const roll = Math.floor(Math.random() * dieSize) + 1;
-      rolls.push(roll);
-      totalHeal += roll + conMod;
-    }
-    totalHeal = Math.max(0, totalHeal);
-    const maxHeal = character.hp.max - character.hp.current;
-    const actualHeal = Math.min(totalHeal, maxHeal);
-    Alert.alert(
-      '💤 Descanso Curto',
-      `Rolou ${actual}x ${hitDieType}: [${rolls.join(', ')}]\n+${conMod} CON cada\nCura total: +${actualHeal} HP`,
-      [{ text: 'OK', onPress: () => { onShortRest(actualHeal, actual); onClose(); setRestType('choose'); } }]
-    );
   };
 
   const handleLongRest = () => {
-    Alert.alert(
-      '🌙 Descanso Longo',
-      'Tem certeza? Isso vai restaurar todo o seu HP, spell slots, dados de vida e recursos.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Confirmar', onPress: () => { onLongRest(); onClose(); setRestType('choose'); } },
-      ]
-    );
+// Executa direto para evitar o bug do Alerta sobre a Modal
+    if (onLongRest) onLongRest(); 
+    setRestType('choose');
+    onClose(); 
+    
+    // Mostra o aviso depois que a modal já fechou
+    setTimeout(() => {
+      Alert.alert('🌙 Descanso Longo', 'HP, espaços de magia, dados de vida e recursos foram restaurados!');
+    }, 300);
   };
 
   const resetAndClose = () => {
@@ -106,7 +146,7 @@ export const RestModal: React.FC<RestModalProps> = ({
             <View style={styles.shortRestContainer}>
               <Text style={styles.label}>Dados de vida disponíveis:</Text>
               <Text style={styles.diceInfo}>
-                {hitDiceAvailable}/{character.level} ({hitDieType})
+                {hitDiceAvailable}/{level} ({hitDieType})
               </Text>
 
               <Text style={[styles.label, { marginTop: 16 }]}>Quantos dados gastar?</Text>
@@ -128,7 +168,7 @@ export const RestModal: React.FC<RestModalProps> = ({
 
               <Text style={styles.healPreview}>
                 Cura estimada: ~{Math.round(
-                  dicesToSpend * (parseInt(hitDieType.replace('d', ''), 10) / 2 + 0.5 + conMod)
+                  dicesToSpend * ((parseInt(hitDieType.replace('d', ''), 10) || 8) / 2 + 0.5 + conMod)
                 )} HP
                 {conMod !== 0 ? ` (${conMod > 0 ? '+' : ''}${conMod} CON por dado)` : ''}
               </Text>
@@ -140,7 +180,6 @@ export const RestModal: React.FC<RestModalProps> = ({
                 <TouchableOpacity
                   style={[styles.confirmBtn, { backgroundColor: colors.accentAmber }]}
                   onPress={rollShortRest}
-                  disabled={hitDiceAvailable <= 0}
                 >
                   <Ionicons name="dice" size={16} color="#FFF" style={{ marginRight: 6 }} />
                   <Text style={styles.confirmBtnText}>Rolar e Descansar</Text>
@@ -153,9 +192,9 @@ export const RestModal: React.FC<RestModalProps> = ({
             <View style={styles.longRestContainer}>
               <Text style={styles.longRestInfo}>Um descanso longo irá restaurar:</Text>
               <View style={styles.longRestList}>
-                <Text style={styles.longRestItem}>❤️ HP ao máximo ({character.hp.max})</Text>
+                <Text style={styles.longRestItem}>❤️ HP ao máximo ({character?.hp?.max ?? 0})</Text>
                 <Text style={styles.longRestItem}>🔮 Todos os espaços de magia</Text>
-                <Text style={styles.longRestItem}>🎲 Todos os dados de vida ({character.level}/{character.level})</Text>
+                <Text style={styles.longRestItem}>🎲 Todos os dados de vida ({level}/{level})</Text>
                 <Text style={styles.longRestItem}>⚡ Todos os recursos de classe</Text>
               </View>
               <View style={styles.actionRow}>
